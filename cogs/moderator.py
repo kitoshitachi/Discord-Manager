@@ -16,7 +16,7 @@ class Moderator(commands.Cog, name="Moderator"):
         name="purge",
         description="Delete a number of messages.",
     )
-    @commands.has_guild_permissions(manage_messages=True)
+    @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     @app_commands.describe(amount="The amount of messages that should be deleted.")
     async def purge(self, ctx: Context, amount: int) -> None:
@@ -38,7 +38,7 @@ class Moderator(commands.Cog, name="Moderator"):
         name="nick",
         description="Change the nickname of a user on a server.",
     )
-    @commands.has_permissions(manage_nicknames=True)
+    # @commands.has_permissions(manage_nicknames=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     @app_commands.describe(
         user="The user that should have a new nickname.",
@@ -52,6 +52,7 @@ class Moderator(commands.Cog, name="Moderator"):
         :param user: The user that should have its nickname changed.
         :param nickname: The new nickname of the user. Default is None, which will reset the nickname.
         """
+        
         member = ctx.guild.get_member(user.id) or await ctx.guild.fetch_member(user.id)
         special_role = get(ctx.message.guild.roles, id=int(SPECIAL_ROLE))
 
@@ -60,7 +61,11 @@ class Moderator(commands.Cog, name="Moderator"):
 
         await member.edit(nick=nickname)
 
-    
+    @nick.error
+    async def missing_user(self, ctx:Context, error):
+        if isinstance(error, commands.UserNotFound):
+            await ctx.author.edit(nick=ctx.message.content.removeprefix('vnick '))
+
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.

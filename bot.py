@@ -211,12 +211,12 @@ class DiscordBot(commands.Bot):
                 color=0xE02B2B,
             )
             await context.channel.send(embed=embed, delete_after=10)
-        else:
-            await self.logs_channel.send(embed=discord.Embed(
-                title=f"Error!",
-                description=f"{error}",
-                color=0xE02B2B,
-            ))
+        # else:
+        #     await self.logs_channel.send(embed=discord.Embed(
+        #         title=f"Error!",
+        #         description=str(error).capitalize(),
+        #         color=0xE02B2B,
+        #     ))
 
     async def on_member_update(self, before: Member, after: Member) -> None:   
         special_role = get(after.guild.roles, id=int(SPECIAL_ROLE))
