@@ -28,7 +28,7 @@ intents.presences = True
 class DiscordBot(commands.Bot):
     def __init__(self) -> None:
         super().__init__(
-            command_prefix=commands.when_mentioned_or('v'),
+            command_prefix=commands.when_mentioned_or('v','V'),
             intents=intents,
             help_command=None,
         )
@@ -118,13 +118,11 @@ class DiscordBot(commands.Bot):
             )
 
             embed = discord.Embed(
-                        title=f"Executed {executed_command} command",
-                        description=f"Server: {context.guild.name} (ID: {context.guild.id})\n \
-                            Author: {context.author.mention} (ID: {context.author.id})\n \
-                            Location: {context.channel.mention}", 
-                        timestamp=datetime.now(),
-                        color=discord.Color.green()
-                    )
+                title=f"Executed {executed_command} command",
+                description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author.mention} (ID: {context.author.id})\nLocation: {context.channel.mention}", 
+                timestamp=datetime.now(),
+                color=discord.Color.green()
+            )
             await self.logs_channel.send(embed=embed)
         else:
             self.logger.info(
@@ -133,10 +131,7 @@ class DiscordBot(commands.Bot):
 
             embed = discord.Embed(
                 title=f"Executed {executed_command} command",
-                description=
-                    f"Server: {context.guild.name} (ID: {context.guild.id})\n \
-                    Author: {context.author.mention} (ID: {context.author.id})\n \
-                    Location: Dms", 
+                description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author.mention} (ID: {context.author.id})\nLocation: Dms", 
                 timestamp=datetime.now(),
                 color=discord.Color.green()
             )
@@ -201,6 +196,7 @@ class DiscordBot(commands.Bot):
             )
             await context.channel.send(embed=embed, delete_after=20)
         elif isinstance(error, commands.BotMissingPermissions):
+
             embed = discord.Embed(
                 description="I am missing the permission(s) `"
                 + ", ".join(error.missing_permissions)
@@ -209,21 +205,6 @@ class DiscordBot(commands.Bot):
             )
             await context.channel.send(embed=embed, delete_after=10)
             await self.logs_channel.send(embed=embed)
-        elif isinstance(error, commands.MissingRequiredArgument):
-            embed = discord.Embed(
-                title=f"Error MissingRequiredArgument!",
-                # We need to capitalize because the command arguments have no capital letter in the code and they are the first word in the error message.
-                description=str(error).capitalize(),
-                color=0xE02B2B,
-            )
-            await context.channel.send(embed=embed, delete_after=10)
-            
-        else:
-            await self.logs_channel.send(embed=discord.Embed(
-                title=f"Error!",
-                description=str(error).capitalize(),
-                color=0xE02B2B,
-            ))
 
     async def on_member_update(self, before: Member, after: Member) -> None:   
         special_role = get(after.guild.roles, id=int(SPECIAL_ROLE))
