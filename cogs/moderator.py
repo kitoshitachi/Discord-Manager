@@ -68,7 +68,7 @@ class Moderator(commands.Cog, name="Moderator"):
         special_role = get(ctx.message.guild.roles, id=int(SPECIAL_ROLE))
 
         if member.top_role.position > special_role.position:
-            nickname = f"{nickname} {member.top_role.name.split(' ')[-1]}"
+            nickname = f"{nickname or member.display_name} {member.top_role.name.split(' ')[-1]}"
 
         await member.edit(nick=nickname)
 
@@ -78,10 +78,10 @@ class Moderator(commands.Cog, name="Moderator"):
             member = ctx.author
             special_role = get(ctx.message.guild.roles, id=int(SPECIAL_ROLE))
 
-            if member.top_role.position > special_role.position:
-                nickname = ctx.message.content.removeprefix('vnick') or member.display_name
-                nickname = f"{nickname} {member.top_role.name.split(' ')[-1]}"
+            nickname = ctx.message.content.strip().removeprefix('vnick')
             await ctx.author.edit(nick=nickname)
+            if member.top_role.position > special_role.position:
+                await ctx.author.edit(nick=ctx.author.display_name + ' ' + member.top_role.name.split(' ')[-1])
             
         else:
             await ctx.guild.get_channel(LOGS_CHANNEL).send(embed=discord.Embed(

@@ -20,6 +20,8 @@ from discord.utils import get
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 
+from utils import embed_message
+
 intents=discord.Intents.default()
 intents.members = True
 intents.message_content = True
@@ -50,12 +52,13 @@ class DiscordBot(commands.Bot):
                         f"Failed to load extension {extension}\n{exception}"
                     )
                     embed = discord.Embed(
-                        title=f"Error",
+                        title=f"Error load cogs",
                         description=f"Failed to load extension {extension}\n{exception}", 
                         timestamp=datetime.now(),
                         color=discord.Color.red()
                     )
-                    await self.get_channel(int(os.getenv("LOGS_CHANNEL"))).send(embed=embed)
+
+                    await self.logs_channel.send(embed=embed)
 
     @tasks.loop(minutes=5.0)
     async def status_task(self) -> None:
@@ -111,32 +114,15 @@ class DiscordBot(commands.Bot):
         split = full_command_name.split(" ")
         executed_command = str(split[0])
          
-        if context.guild is not None:
-            content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
-            self.logger.info(
-                content
-            )
-
-            embed = discord.Embed(
-                title=f"Executed {executed_command} command",
-                description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author.mention} (ID: {context.author.id})\nLocation: {context.message.jump_url}", 
-                timestamp=datetime.now(),
-                color=discord.Color.green()
-            )
-            await self.logs_channel.send(embed=embed)
-        else:
-            self.logger.info(
-                f"Executed {executed_command} command by {context.author} (ID: {context.author.id}) in DMs"
-            )
-
-            embed = discord.Embed(
-                title=f"Executed {executed_command} command",
-                description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author.mention} (ID: {context.author.id})\nLocation: Dms", 
-                timestamp=datetime.now(),
-                color=discord.Color.green()
-            )
-
-            await self.logs_channel.send(embed=embed)
+        content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
+        self.logger.info(
+            content
+        )
+        await self.logs_channel.send(embed=embed_message(
+            title=f"Executed {executed_command} command",
+            ctx=context,
+            color=discord.Color.green()
+        ))
 
     async def on_command_error(self, context: Context, error) -> None:
         """
@@ -145,7 +131,6 @@ class DiscordBot(commands.Bot):
         :param context: The context of the normal command that failed executing.
         :param error: The error that has been faced.
         """
-        logs_channel = self.get_channel(int(LOGS_CHANNEL))
 
         if isinstance(error, commands.CommandOnCooldown):
             minutes, seconds = divmod(error.retry_after, 60)
@@ -155,38 +140,7 @@ class DiscordBot(commands.Bot):
                 description=f"**Please slow down** - You can use this command again in {f'{round(hours)} hours' if round(hours) > 0 else ''} {f'{round(minutes)} minutes' if round(minutes) > 0 else ''} {f'{round(seconds)} seconds' if round(seconds) > 0 else ''}.",
                 color=0xE02B2B,
             )
-            await context.channel.send(embed=embed, delete_after=10)
-        elif isinstance(error, commands.NotOwner):
-            embed = discord.Embed(
-                description="You are not the owner of the bot!", color=0xE02B2B
-            )
-            await context.channel.send(embed=embed, delete_after=10)
-            await self.logs_channel.send(embed=embed)
-            if context.guild:
-                self.logger.warning(
-                    f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the guild {context.guild.name} (ID: {context.guild.id}), but the user is not an owner of the bot."
-                )
-                await self.logs_channel.send(embed=discord.Embed(
-                    title=f"Tried to execute an owner only command",
-                    description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author} (ID: {context.author.id})\nLocation: {context.channel.id}",  
-                    timestamp=datetime.now(),
-                    color=discord.Color.yellow()
-                ))
-                
-            else:
-                self.logger.warning(
-                    f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the bot's DMs, but the user is not an owner of the bot."
-                )
-
-                await self.logs_channel.send(embed=discord.Embed(
-                    title=f"Tried to execute an owner only command",
-                    description=
-                        f"Server: {context.guild.name} (ID: {context.guild.id})\n \
-                        Author: {context.author} (ID: {context.author.id})\n \
-                        Location: bot's DMs",  
-                    timestamp=datetime.now(),
-                    color=discord.Color.yellow()
-                ))
+            await context.channel.send(embed=embed, delete_after=10)            
         elif isinstance(error, commands.MissingPermissions):
             embed = discord.Embed(
                 description="You are missing the permission(s) `"
@@ -194,7 +148,7 @@ class DiscordBot(commands.Bot):
                 + "` to execute this command!",
                 color=0xE02B2B,
             )
-            await context.channel.send(embed=embed, delete_after=20)
+            await context.channel.send(embed=embed)
         elif isinstance(error, commands.BotMissingPermissions):
 
             embed = discord.Embed(
@@ -203,8 +157,7 @@ class DiscordBot(commands.Bot):
                 + "` to fully perform this command!",
                 color=0xE02B2B,
             )
-            await context.channel.send(embed=embed, delete_after=10)
-            await self.logs_channel.send(embed=embed)
+            await context.channel.send(embed=embed)
 
     async def on_member_update(self, before: Member, after: Member) -> None:   
         special_role = get(after.guild.roles, id=int(SPECIAL_ROLE))
