@@ -7,7 +7,7 @@ from settings import SPECIAL_ROLE
 # Here we name the cog and create a new class for the cog.
 
 
-class Moderation(commands.Cog, name="Moderation"):
+class Moderator(commands.Cog, name="Moderator"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -65,4 +65,4 @@ class Moderation(commands.Cog, name="Moderation"):
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot):
-    await bot.add_cog(Moderation(bot))
+    await bot.add_cog(Moderator(bot))
