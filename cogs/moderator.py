@@ -1,3 +1,11 @@
+""""
+Copyright © Krypton 2019-2023 - https://github.com/kkrypt0nn (https://krypton.ninja)
+Description:
+🐍 A simple template to start to code your own and personalized discord bot in Python programming language.
+
+Version: 6.1.0
+"""
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -38,7 +46,6 @@ class Moderator(commands.Cog, name="Moderator"):
         name="nick",
         description="Change the nickname of a user on a server.",
     )
-    # @commands.has_permissions(manage_nicknames=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     @app_commands.describe(
         user="The user that should have a new nickname.",
@@ -65,6 +72,8 @@ class Moderator(commands.Cog, name="Moderator"):
     async def missing_user(self, ctx:Context, error):
         if isinstance(error, commands.UserNotFound):
             await ctx.author.edit(nick=ctx.message.content.removeprefix('vnick '))
+    
+    
 
 
 

@@ -1,3 +1,11 @@
+""""
+Copyright © Krypton 2019-2023 - https://github.com/kkrypt0nn (https://krypton.ninja)
+Description:
+🐍 A simple template to start to code your own and personalized discord bot in Python programming language.
+
+Version: 6.1.0
+"""
+
 import os
 import platform
 import random
@@ -15,9 +23,7 @@ from discord.ext.commands import Context
 intents=discord.Intents.default()
 intents.members = True
 intents.message_content = True
-
-# Setup both of the loggers
-
+intents.presences = True
 
 class DiscordBot(commands.Bot):
     def __init__(self) -> None:
@@ -51,7 +57,7 @@ class DiscordBot(commands.Bot):
                     )
                     await self.get_channel(int(os.getenv("LOGS_CHANNEL"))).send(embed=embed)
 
-    @tasks.loop(hours=8.0)
+    @tasks.loop(minutes=5.0)
     async def status_task(self) -> None:
         """
         Setup the game status task of the bot.
@@ -61,7 +67,7 @@ class DiscordBot(commands.Bot):
             discord.CustomActivity(name="Fighting !" , emoji='⚔️'),
             discord.CustomActivity(name="Sleeping !" , emoji='⚰️'),
         ]
-        await self.change_presence(activity=random.choice(Activities))
+        await self.change_presence(status= discord.Status.online, activity=random.choice(Activities))
 
     @status_task.before_loop
     async def before_status_task(self) -> None:
@@ -137,7 +143,7 @@ class DiscordBot(commands.Bot):
 
             await self.logs_channel.send(embed=embed)
 
-    async def on_command_error(self, context: Context, error: discord.errors) -> None:
+    async def on_command_error(self, context: Context, error) -> None:
         """
         The code in this event is executed every time a normal valid command catches an error.
 
@@ -211,12 +217,13 @@ class DiscordBot(commands.Bot):
                 color=0xE02B2B,
             )
             await context.channel.send(embed=embed, delete_after=10)
-        # else:
-        #     await self.logs_channel.send(embed=discord.Embed(
-        #         title=f"Error!",
-        #         description=str(error).capitalize(),
-        #         color=0xE02B2B,
-        #     ))
+            
+        else:
+            await self.logs_channel.send(embed=discord.Embed(
+                title=f"Error!",
+                description=str(error).capitalize(),
+                color=0xE02B2B,
+            ))
 
     async def on_member_update(self, before: Member, after: Member) -> None:   
         special_role = get(after.guild.roles, id=int(SPECIAL_ROLE))
