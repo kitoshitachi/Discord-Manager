@@ -119,7 +119,7 @@ class DiscordBot(commands.Bot):
 
             embed = discord.Embed(
                 title=f"Executed {executed_command} command",
-                description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author.mention} (ID: {context.author.id})\nLocation: {context.channel.mention}", 
+                description=f"Server: {context.guild.name} (ID: {context.guild.id})\nAuthor: {context.author.mention} (ID: {context.author.id})\nLocation: {context.message.jump_url}", 
                 timestamp=datetime.now(),
                 color=discord.Color.green()
             )
