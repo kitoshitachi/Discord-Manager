@@ -27,6 +27,8 @@ class DiscordBot(commands.Bot):
             help_command=None,
         )
         self.logger = Logger
+        self.logs_channel = self.get_partial_messageable(int(LOGS_CHANNEL))
+
 
     async def load_cogs(self) -> None:
         for file in os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs"):
@@ -82,7 +84,6 @@ class DiscordBot(commands.Bot):
         
         await self.load_cogs()
         self.status_task.start()
-        self.logs_channel = self.get_channel(int(LOGS_CHANNEL))
 
     async def on_message(self, message: discord.Message) -> None:
         """
@@ -103,7 +104,7 @@ class DiscordBot(commands.Bot):
         full_command_name = context.command.qualified_name
         split = full_command_name.split(" ")
         executed_command = str(split[0])
-
+         
         if context.guild is not None:
             content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
             self.logger.info(
