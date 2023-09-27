@@ -6,12 +6,13 @@ Description:
 Version: 6.1.0
 """
 
+import re
 import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.utils import get
-from settings import SPECIAL_ROLE, LOGS_CHANNEL
+from settings import SPECIAL_ROLE
 # Here we name the cog and create a new class for the cog.
 
 
@@ -54,12 +55,10 @@ class Moderator(commands.Cog, name="Moderator"):
   )
   @commands.bot_has_permissions(manage_nicknames=True)
   @app_commands.describe(
-      user="The user that should have a new nickname.",
       nickname="The new nickname that should be set.",
   )
   async def nick(self,
                  ctx: Context,
-                 user: discord.User,
                  *,
                  nickname: str = None) -> None:
     """
@@ -69,37 +68,16 @@ class Moderator(commands.Cog, name="Moderator"):
         :param user: The user that should have its nickname changed.
         :param nickname: The new nickname of the user. Default is None, which will reset the nickname.
         """
-
-    member = ctx.guild.get_member(user.id) or await ctx.guild.fetch_member(
-        user.id)
+    nickname = re.sub('<@\d+>','',ctx.message.content[5:]).strip()
+    member = ctx.message.mentions[0] if ctx.message.mentions else ctx.author
     special_role = get(ctx.message.guild.roles, id=int(SPECIAL_ROLE))
-
+    if nickname is None or nickname == '':
+      nickname = re.sub('[._ ]+','',member.name)
+    
     if member.top_role.position > special_role.position:
-      nickname = f"{nickname or member.display_name} {member.top_role.name.split(' ')[-1]}"
+      nickname += '' + member.top_role.name.split(' ')[-1]
 
     await member.edit(nick=nickname)
-
-  @nick.error
-  async def missing_user(self, ctx: Context, error):
-    if isinstance(error, commands.UserNotFound) or isinstance(
-        error, commands.MissingRequiredArgument):
-      member = ctx.author
-      special_role = get(ctx.message.guild.roles, id=int(SPECIAL_ROLE))
-
-      nickname = ctx.message.content.strip().removeprefix(
-          'vnick').removeprefix('Vnick')
-      await ctx.author.edit(nick=nickname)
-      if member.top_role.position > special_role.position:
-        await ctx.author.edit(nick=ctx.author.display_name + ' ' +
-                              member.top_role.name.split(' ')[-1])
-
-    else:
-      await ctx.message.send(embed=discord.Embed(
-          title=f"Error nick command!",
-          description=str(error).capitalize(),
-          color=0xE02B2B,
-      ))
-
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot):
