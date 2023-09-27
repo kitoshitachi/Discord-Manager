@@ -9,7 +9,6 @@ Version: 6.1.0
 import os
 import platform
 import random
-from keep_alive import keep_alive
 from logger import Logger
 from datetime import datetime
 from settings import DISCORD_TOKEN, LOGS_CHANNEL, SPECIAL_ROLE
@@ -75,15 +74,9 @@ class DiscordBot(commands.Bot):
 
   @status_task.before_loop
   async def before_status_task(self) -> None:
-    """
-        Before starting the status changing task, we make sure the bot is ready
-        """
     await self.wait_until_ready()
 
   async def setup_hook(self) -> None:
-    """
-        This will just be executed when the bot starts the first time.
-        """
     self.logger.info(f"Logged in as {self.user.name}")
     self.logger.info(f"discord.py API version: {discord.__version__}")
     self.logger.info(f"Python version: {platform.python_version()}")
@@ -96,20 +89,20 @@ class DiscordBot(commands.Bot):
 
   async def on_message(self, message: discord.Message) -> None:
     """
-        The code in this event is executed every time someone sends a message, with or without the prefix
+    The code in this event is executed every time someone sends a message, with or without the prefix
 
-        :param message: The message that was sent.
-        """
+    :param message: The message that was sent.
+    """
     if message.author == self.user or message.author.bot:
       return
     await self.process_commands(message)
 
   async def on_command_completion(self, context: Context) -> None:
     """
-        The code in this event is executed every time a normal command has been *successfully* executed.
+    The code in this event is executed every time a normal command has been *successfully* executed.
 
-        :param context: The context of the command that has been executed.
-        """
+    :param context: The context of the command that has been executed.
+    """
     full_command_name = context.command.qualified_name
     split = full_command_name.split(" ")
     executed_command = str(split[0])
@@ -123,11 +116,11 @@ class DiscordBot(commands.Bot):
 
   async def on_command_error(self, context: Context, error) -> None:
     """
-        The code in this event is executed every time a normal valid command catches an error.
+    The code in this event is executed every time a normal valid command catches an error.
 
-        :param context: The context of the normal command that failed executing.
-        :param error: The error that has been faced.
-        """
+    :param context: The context of the normal command that failed executing.
+    :param error: The error that has been faced.
+    """
 
     if isinstance(error, commands.CommandOnCooldown):
       minutes, seconds = divmod(error.retry_after, 60)
@@ -177,7 +170,7 @@ class DiscordBot(commands.Bot):
       await after.edit(nick=display_name)
 
 
-keep_alive()
+# keep_alive()
 
 bot = DiscordBot()
 bot.run(DISCORD_TOKEN)
