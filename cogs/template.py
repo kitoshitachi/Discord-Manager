@@ -18,8 +18,7 @@ class Template(Cog, name="Template"):
     test="test",
     description="test do nothing",
   )
-  @app_commands.describe(template="template")
-  async def test(self, ctx: Context, *, test: str) -> None:
+  async def test(self, ctx: Context) -> None:
     pass
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
   async def setup(bot):
