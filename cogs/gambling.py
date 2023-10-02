@@ -8,11 +8,14 @@ Version: 6.1.0
 
 from datetime import datetime
 from discord.ext import commands
+from discord import app_commands
 from discord.ext.commands import Context
 from supabase import create_client, Client
 from settings import SUPABASE_URL, SUPABASE_KEY
-from discord import Embed
+from discord import Embed, Color
                 
+
+
 # Here we name the cog and create a new class for the cog.
 class Gambling(commands.Cog, name="gambling"):
     def __init__(self, bot) -> None:
@@ -48,8 +51,9 @@ class Gambling(commands.Cog, name="gambling"):
 
     @commands.hybrid_command(
         name="cash",
-        description="This is a testing command that does nothing.",
+        description="Show ur cash",
     )
+    @commands.command(aliases=['bal'])
     async def cash(self, context: Context) -> None:
         """
         show cash.
@@ -66,6 +70,34 @@ class Gambling(commands.Cog, name="gambling"):
         else:
             data = data[1][0]
             await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
+
+    @commands.hybrid_command(
+        name="level",
+        description="Show ur profile",
+    )
+    @commands.command(aliases=['lvl','xp'])
+    async def level(self, context: Context) -> None:
+        """
+        show cash.
+
+        :param context: The application command context.
+        """
+        id = context.author.id
+        data, count = self.supabase.from_('Member') \
+            .select('level, experience') \
+            .eq('id', id) \
+            .execute()
+        if data[1] == []:
+            await self.__init_member(context, id)
+        else:
+            data = data[1][0]
+            user = context.author
+            embed = Embed(title=user.display_name)
+            embed.set_thumbnail(url=user.avatar.url)
+            embed.add_field(name='color',value=Color.red())
+            embed.add_field(name="Level:", value=f"{data['level']:,}")
+            await context.channel.send(embed=embed)
+
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:
