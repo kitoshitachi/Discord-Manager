@@ -76,7 +76,7 @@ class Moderator(Cog, name="Moderator"):
       nickname = re.sub('[._ ]+', '', member.name)
 
     if member.top_role.position > special_role.position:
-      nickname += '' + member.top_role.name.split(' ')[-1]
+      nickname += ' ' + member.top_role.name.split(' ')[-1]
 
     await member.edit(nick=nickname)
 

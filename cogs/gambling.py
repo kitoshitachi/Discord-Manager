@@ -92,10 +92,11 @@ class Gambling(commands.Cog, name="gambling"):
             await self.__init_member(context, id)
         else:
             data = data[1][0]
-            embed = Embed(title=user.display_name, color=Color.red(), colour=Color.red())
-            embed.set_image(url=user.avatar.url)
+            embed = Embed(title="User: " + user.display_name, color=Color.red())
+            embed.set_thumbnail(url=user.avatar.url)
             embed.add_field(name="Level:", value=data['level'])
             embed.add_field(name="Role:", value=user.top_role.name)
+            embed.set_footer(text="Powered by Vampire")
             await context.channel.send(embed=embed)
 
 
