@@ -92,7 +92,7 @@ class Gambling(commands.Cog, name="gambling"):
             await self.__init_member(context, id)
         else:
             data = data[1][0]
-            embed = Embed(title=f"{user.mention}'s Information", color=Color.red())
+            embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
             embed.set_thumbnail(url=user.avatar.url)
             embed.add_field(name="Level", value=data['level'])
             embed.add_field(name="Role", value=user.top_role.name)
