@@ -14,7 +14,7 @@ from discord.ext.commands import (
   hybrid_command, has_permissions, bot_has_permissions
 )
 from discord.utils import get
-from settings import SPECIAL_ROLE
+import yaml
 # Here we name the cog and create a new class for the cog.
 
 
@@ -22,6 +22,8 @@ class Moderator(Cog, name="Moderator"):
 
   def __init__(self, bot):
     self.bot = bot
+    with open('config.yml','r') as f:
+      self.config = yaml.safe_load(f)
 
   # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
   @hybrid_command(
@@ -68,7 +70,7 @@ class Moderator(Cog, name="Moderator"):
       """
     nickname = re.sub('<@\d+>', '', ctx.message.content[5:]).strip()
     member = ctx.message.mentions[0] if ctx.message.mentions else ctx.author
-    special_role = get(ctx.message.guild.roles, id=int(SPECIAL_ROLE))
+    special_role = get(ctx.message.guild.roles, id=int(self.config['SPECIAL_ROLE']))
     if nickname is None or nickname == '':
       nickname = re.sub('[._ ]+', '', member.name)
 
