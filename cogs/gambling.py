@@ -62,7 +62,6 @@ class Gambling(commands.Cog, name="gambling"):
             .eq('id', id) \
             .execute()
         data = data[1][0]
-        print(data)
 
         if data == None:
             await self.__init_member(context, id)
