@@ -39,9 +39,8 @@ class Gambling(commands.Cog, name="gambling"):
             data, count = self.supabase.table('Member') \
                 .insert(
                     {'id':_id, 
-                     'joined_date': datetime.now()}
+                     'joined_date': str(datetime.now().date())}
             ).execute()
-            print(f"data: {data},count: {count}")
         else:
             await message.edit("Cancelled")
 
@@ -61,11 +60,10 @@ class Gambling(commands.Cog, name="gambling"):
             .select('cash') \
             .eq('id', id) \
             .execute()
-        data = data[1][0]
-        print(data)
-        if data == None:
+        if data[1] == []:
             await self.__init_member(context, id)
         else:
+            data = data[1][0]
             await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
