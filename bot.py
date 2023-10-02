@@ -6,12 +6,9 @@ Description:
 Version: 6.1.0
 """
 
-import os
-import platform
-import random
+import os, platform, yaml, random
 from logger import Logger
 from datetime import datetime
-from settings import LOGS_CHANNEL, SPECIAL_ROLE
 
 import discord
 from discord import Member
@@ -34,8 +31,9 @@ class DiscordBot(commands.Bot):
         help_command=None,
     )
     self.logger = Logger
-    # self.config = 
-    self.logs_channel = self.get_partial_messageable(int(LOGS_CHANNEL))
+    with open('config.yml','r') as f:
+      self.config = yaml.safe_load(f)
+    self.logs_channel = self.get_partial_messageable(int(self.config['LOGS_CHANNEL']))
 
   async def load_cogs(self) -> None:
     for file in os.listdir(
@@ -58,7 +56,7 @@ class DiscordBot(commands.Bot):
 
           await self.logs_channel.send(embed=embed)
 
-  @tasks.loop(minutes=5.0)
+  @tasks.loop(hours=8.0)
   async def status_task(self) -> None:
     """
       Setup the game status task of the bot.
@@ -147,7 +145,7 @@ class DiscordBot(commands.Bot):
       await context.channel.send(embed=embed)
 
   async def on_member_update(self, before: Member, after: Member) -> None:
-    special_role = get(after.guild.roles, id=int(SPECIAL_ROLE))
+    special_role = get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
 
     if before.top_role.name != after.top_role.name:
       display_name = after.display_name  #or after.name

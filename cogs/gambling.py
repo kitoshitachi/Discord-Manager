@@ -41,6 +41,7 @@ class Gambling(commands.Cog, name="gambling"):
                     {'id':_id, 
                      'joined_date': str(datetime.now().date())}
             ).execute()
+            await message.edit("Success !")
         else:
             await message.edit("Cancelled")
 
