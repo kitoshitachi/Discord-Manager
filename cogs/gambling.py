@@ -52,8 +52,8 @@ class Gambling(commands.Cog, name="gambling"):
     @commands.hybrid_command(
         name="cash",
         description="Show ur cash",
+        aliases=['bal']
     )
-    @commands.command(aliases=['bal'])
     async def cash(self, context: Context) -> None:
         """
         show cash.
@@ -74,8 +74,8 @@ class Gambling(commands.Cog, name="gambling"):
     @commands.hybrid_command(
         name="level",
         description="Show ur profile",
+        aliases=['lvl','xp']
     )
-    @commands.command(aliases=['lvl','xp'])
     async def level(self, context: Context) -> None:
         """
         show cash.

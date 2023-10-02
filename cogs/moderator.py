@@ -29,6 +29,7 @@ class Moderator(Cog, name="Moderator"):
   @hybrid_command(
     name="clear",
     description="Delete a number of messages.",
+    aliases=['purge','delete']
   )
   @has_permissions(manage_messages=True)
   @bot_has_permissions(manage_messages=True)
