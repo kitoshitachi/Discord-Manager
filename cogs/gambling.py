@@ -82,19 +82,20 @@ class Gambling(commands.Cog, name="gambling"):
 
         :param context: The application command context.
         """
-        id = context.author.id
+        user = context.author
+
         data, count = self.supabase.from_('Member') \
             .select('level, experience') \
-            .eq('id', id) \
+            .eq('id', user.id) \
             .execute()
         if data[1] == []:
             await self.__init_member(context, id)
         else:
             data = data[1][0]
-            user = context.author
-            embed = Embed(title=user.display_name, color=Color.red())
-            embed.set_thumbnail(url=user.avatar.url)
-            embed.add_field(name="Level:", value=f"{data['level']}")
+            embed = Embed(title=user.display_name, color=Color.red(), colour=Color.red())
+            embed.set_image(url=user.avatar.url)
+            embed.add_field(name="Level:", value=data['level'])
+            embed.add_field(name="Role:", value=user.top_role.name)
             await context.channel.send(embed=embed)
 
 
