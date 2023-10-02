@@ -106,13 +106,11 @@ class DiscordBot(commands.Bot):
     full_command_name = context.command.qualified_name
     split = full_command_name.split(" ")
     executed_command = str(split[0])
-
+    if executed_command != 'clear':
+      await context.message.add_reaction('✅')
     content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
     self.logger.info(content)
-    await self.logs_channel.send(
-        embed=embed_message(title=f"Executed {executed_command} command",
-                            ctx=context,
-                            color=discord.Color.green()))
+    
 
   async def on_command_error(self, context: Context, error) -> None:
     """
