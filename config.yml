@@ -1,0 +1,7 @@
+
+# the channel to show logs
+LOGS_CHANNEL: "1084476544967249940"
+
+# the role to check has icon or no
+SPECIAL_ROLE: "1141759520889114634"
+

@@ -62,12 +62,11 @@ class Gambling(commands.Cog, name="gambling"):
             .eq('id', id) \
             .execute()
         data = data[1][0]
-
+        
         if data == None:
             await self.__init_member(context, id)
         else:
             await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
-
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:

@@ -11,15 +11,13 @@ import platform
 import random
 from logger import Logger
 from datetime import datetime
-from settings import DISCORD_TOKEN, LOGS_CHANNEL, SPECIAL_ROLE
+from settings import LOGS_CHANNEL, SPECIAL_ROLE
 
 import discord
 from discord import Member
 from discord.utils import get
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
-
-from utils import embed_message
 
 intents = discord.Intents.default()
 intents.members = True
@@ -36,6 +34,7 @@ class DiscordBot(commands.Bot):
         help_command=None,
     )
     self.logger = Logger
+    # self.config = 
     self.logs_channel = self.get_partial_messageable(int(LOGS_CHANNEL))
 
   async def load_cogs(self) -> None:
@@ -168,7 +167,3 @@ class DiscordBot(commands.Bot):
       await after.edit(nick=display_name)
 
 
-# keep_alive()
-
-bot = DiscordBot()
-bot.run(DISCORD_TOKEN)
