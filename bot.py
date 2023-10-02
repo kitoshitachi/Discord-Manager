@@ -62,8 +62,8 @@ class DiscordBot(commands.Bot):
   @tasks.loop(minutes=5.0)
   async def status_task(self) -> None:
     """
-        Setup the game status task of the bot.
-        """
+      Setup the game status task of the bot.
+    """
     Activities = [
         discord.CustomActivity(name="Drinking !", emoji='🍷'),
         discord.CustomActivity(name="Fighting !", emoji='⚔️'),
