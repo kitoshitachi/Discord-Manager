@@ -92,10 +92,9 @@ class Gambling(commands.Cog, name="gambling"):
         else:
             data = data[1][0]
             user = context.author
-            embed = Embed(title=user.display_name)
+            embed = Embed(title=user.display_name, color=Color.red())
             embed.set_thumbnail(url=user.avatar.url)
-            embed.add_field(name='color',value=Color.red())
-            embed.add_field(name="Level:", value=f"{data['level']:,}")
+            embed.add_field(name="Level:", value=f"{data['level']}")
             await context.channel.send(embed=embed)
 
 
