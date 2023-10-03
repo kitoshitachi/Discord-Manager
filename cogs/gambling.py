@@ -6,44 +6,17 @@ Description:
 Version: 6.1.0
 """
 
-from datetime import datetime
 from discord.ext import commands
 from discord.ext.commands import Context
-from supabase import create_client, Client
-from settings import SUPABASE_URL, SUPABASE_KEY
 from discord import Embed, Color
 from classes.database import Database                
-
+from classes.utils import create_member
 
 # Here we name the cog and create a new class for the cog.
 class Gambling(commands.Cog, name="gambling"):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.supabase = Database()
-
-    # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
-
-    async def __init_member(self, context:Context, _id:int) -> None:
-        """
-        create new member data
-        """
-
-        message = await context.channel.send('Agree to activate the system?')
-        await message.add_reaction('✅')
-        await message.add_reaction('❎')
-        valid_reactions = ['✅', '❎']
-        def check(reaction, user):
-            return user == context.author and str(reaction.emoji) in valid_reactions
-        
-        reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
-
-        if str(reaction.emoji) == valid_reactions[0]:
-            if self.supabase.init_member(_id) == False:
-                raise commands.MissingRequiredArgument
-            await message.edit(content="Success!")
-        else:
-            await message.edit(content="Cancelled!")
-
 
     @commands.hybrid_command(
         name="cash",
@@ -58,8 +31,9 @@ class Gambling(commands.Cog, name="gambling"):
         """
         user = context.author        
         data = self.supabase.get(user.id, "cash")
+        
         if data is None:
-            await self.__init_member(context, user.id)
+            await create_member(self.bot, self.supabase, context, user.id)
 
         await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
 
@@ -78,7 +52,7 @@ class Gambling(commands.Cog, name="gambling"):
         data = self.supabase.get(user.id,'level, experience')
         
         if data is None:
-            await self.__init_member(context, user.id)
+            await create_member(self.bot, self.supabase, context, user.id)
 
         embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
         embed.set_thumbnail(url=user.avatar.url)
