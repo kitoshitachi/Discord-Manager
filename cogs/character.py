@@ -82,12 +82,11 @@ class Character(commands.Cog, name="character"):
         #level up
         if current_xp >= total_xp:
             data['level'] += 1
-            data['experience'] -= total_xp
+            current_xp -= total_xp
 
             stat['spirit'] += self.config['STAT_PER_LEVEL']
-        else:
-            data['experience'] = current_xp
         
+        data['experience'] = current_xp
         data['character'] = json.dumps(stat)
         if self.supabase.update(user.id, data):
             await context.channel.send(f"| {user.display_name}, you got **{xp} exp** and **{cash:,} Bloody Coins**. \
