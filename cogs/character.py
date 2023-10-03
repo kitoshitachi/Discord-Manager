@@ -90,7 +90,7 @@ class Character(commands.Cog, name="character"):
         
         data['character'] = json.dumps(stat)
         if self.supabase.update(user.id, data):
-            await context.channel.send(f"| {user.display_name}, you got **{xp} exp** and **{cash} Bloody Coins**. \
+            await context.channel.send(f"| {user.display_name}, you got **{xp} exp** and **{cash:,} Bloody Coins**. \
                                   \n| Stat increase {stat_name.upper()}:{stat_bonus} " + (f" and {luck_stat_name.upper()}: {luck_stat}!" if luck_stat else "!") )
         else:
             await context.channel.send(f"something wrong ! {data}")
