@@ -8,19 +8,18 @@ Version: 6.1.0
 
 from datetime import datetime
 from discord.ext import commands
-from discord import app_commands
 from discord.ext.commands import Context
 from supabase import create_client, Client
 from settings import SUPABASE_URL, SUPABASE_KEY
 from discord import Embed, Color
-                
+from classes.database import Database                
 
 
 # Here we name the cog and create a new class for the cog.
 class Gambling(commands.Cog, name="gambling"):
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        self.supabase = Database()
 
     # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
 
@@ -39,14 +38,11 @@ class Gambling(commands.Cog, name="gambling"):
         reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
 
         if str(reaction.emoji) == valid_reactions[0]:
-            data, count = self.supabase.table('Member') \
-                .insert(
-                    {'id':_id, 
-                     'joined_date': str(datetime.now().date())}
-            ).execute()
+            if self.supabase.init_member(_id) == False:
+                raise commands.MissingRequiredArgument
             await message.edit(content="Success!")
         else:
-            await message.edit(content="Cancelled")
+            await message.edit(content="Cancelled!")
 
 
     @commands.hybrid_command(
@@ -60,16 +56,12 @@ class Gambling(commands.Cog, name="gambling"):
 
         :param context: The application command context.
         """
-        user = context.author
-        data, count = self.supabase.from_('Member') \
-            .select('cash') \
-            .eq('id', user.id) \
-            .execute()
-        if data[1] == []:
+        user = context.author        
+        data = self.supabase.get(user.id, "cash")
+        if data is None:
             await self.__init_member(context, user.id)
-        else:
-            data = data[1][0]
-            await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
+
+        await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
 
     @commands.hybrid_command(
         name="level",
@@ -83,21 +75,17 @@ class Gambling(commands.Cog, name="gambling"):
         :param context: The application command context.
         """
         user = context.author
-
-        data, count = self.supabase.from_('Member') \
-            .select('level, experience') \
-            .eq('id', user.id) \
-            .execute()
-        if data[1] == []:
+        data = self.supabase.get(user.id,'level, experience')
+        
+        if data is None:
             await self.__init_member(context, user.id)
-        else:
-            data = data[1][0]
-            embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
-            embed.set_thumbnail(url=user.avatar.url)
-            embed.add_field(name="Level", value=data['level'])
-            embed.add_field(name="Role", value=user.top_role.name)
-            embed.set_footer(text="Powered by Vampire")
-            await context.channel.send(embed=embed)
+
+        embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
+        embed.set_thumbnail(url=user.avatar.url)
+        embed.add_field(name="Level", value=data['level'])
+        embed.add_field(name="Role", value=user.top_role.name)
+        embed.set_footer(text="Powered by Vampire")
+        await context.channel.send(embed=embed)
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
