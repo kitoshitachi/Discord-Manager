@@ -60,13 +60,13 @@ class Gambling(commands.Cog, name="gambling"):
 
         :param context: The application command context.
         """
-        id = context.author.id
+        user = context.author
         data, count = self.supabase.from_('Member') \
             .select('cash') \
-            .eq('id', id) \
+            .eq('id', user.id) \
             .execute()
         if data[1] == []:
-            await self.__init_member(context, id)
+            await self.__init_member(context, user.id)
         else:
             data = data[1][0]
             await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
@@ -89,7 +89,7 @@ class Gambling(commands.Cog, name="gambling"):
             .eq('id', user.id) \
             .execute()
         if data[1] == []:
-            await self.__init_member(context, id)
+            await self.__init_member(context, user.id)
         else:
             data = data[1][0]
             embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
