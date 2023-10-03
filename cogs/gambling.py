@@ -31,9 +31,11 @@ class Gambling(commands.Cog, name="gambling"):
         """
         user = context.author        
         data = self.supabase.get(user.id, "cash")
-        
+
         if data is None:
             await create_member(self.bot, self.supabase, context, user.id)
+            return
+
 
         await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
 
@@ -50,9 +52,10 @@ class Gambling(commands.Cog, name="gambling"):
         """
         user = context.author
         data = self.supabase.get(user.id,'level, experience')
-        
         if data is None:
             await create_member(self.bot, self.supabase, context, user.id)
+            return
+
 
         embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
         embed.set_thumbnail(url=user.avatar.url)

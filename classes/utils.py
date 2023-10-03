@@ -17,8 +17,10 @@ async def create_member(bot: Client, database:Database , context:Context, _id:in
     reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
 
     if str(reaction.emoji) == valid_reactions[0]:
-        if database.init_member(_id) == False:
-            raise commands.MissingRequiredArgument
-        await message.edit(content="Success!")
+        result = database.init_member(_id) 
+        if result == True:
+            await message.edit(content="Success!")
+        else:
+            await message.edit(content="Cancelled!")
     else:
         await message.edit(content="Cancelled!")
