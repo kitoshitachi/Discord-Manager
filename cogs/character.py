@@ -30,7 +30,7 @@ class Character(commands.Cog, name="character"):
         description="steal to get exp and items",
         aliases=['s']
     )
-    @commands.cooldown(1,10,commands.BucketType.user)
+    @commands.cooldown(1,20,commands.BucketType.user)
     async def steal(self, context: Context) -> None:
         """
         hunt animals get items and 0.001 or 0.002 agi stat
@@ -46,7 +46,7 @@ class Character(commands.Cog, name="character"):
         description="hunt to get exp and items",
         aliases=['h']
     )
-    @commands.cooldown(1,10,commands.BucketType.user)
+    @commands.cooldown(1,20,commands.BucketType.user)
     async def hunt(self, context: Context) -> None:
         """
         hunt animals get items and 0.001 or 0.002 agi stat
@@ -65,8 +65,8 @@ class Character(commands.Cog, name="character"):
             return True
         xp, cash, stat_bonus, luck_stat = self.world.get_items()
 
-
         data['cash'] += cash
+        data['limit_work'] -= 1
         stat = json.loads(data['character'])
         stat[stat_name] += stat_bonus
         stat[luck_stat_name] += luck_stat
@@ -78,14 +78,15 @@ class Character(commands.Cog, name="character"):
         if data['limit_experience'] < xp:
             xp = data['limit_experience']
         current_xp = xp + data['experience']
-        print(f"cur xp: {current_xp}")
+        data['limit_experience'] -= xp
         #level up
         if current_xp >= total_xp:
             data['level'] += 1
             data['experience'] -= total_xp
-            data['limit_experience'] -= xp
 
             stat['spirit'] += self.config['STAT_PER_LEVEL']
+        else:
+            data['experience'] = current_xp
         
         data['character'] = json.dumps(stat)
         if self.supabase.update(user.id, data):
