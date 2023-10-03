@@ -30,7 +30,7 @@ class Character(commands.Cog, name="character"):
         description="steal to get exp and items",
         aliases=['s']
     )
-    @commands.cooldown(1,20,commands.BucketType.user)
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def steal(self, context: Context) -> None:
         """
         hunt animals get items and 0.001 or 0.002 agi stat
@@ -46,7 +46,7 @@ class Character(commands.Cog, name="character"):
         description="hunt to get exp and items",
         aliases=['h']
     )
-    @commands.cooldown(1,20,commands.BucketType.user)
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def hunt(self, context: Context) -> None:
         """
         hunt animals get items and 0.001 or 0.002 agi stat
