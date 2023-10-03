@@ -68,8 +68,9 @@ class Character(commands.Cog, name="character"):
         data['cash'] += cash
         data['limit_work'] -= 1
         stat = json.loads(data['character'])
-        stat[stat_name] += stat_bonus
-        stat[luck_stat_name] += luck_stat
+        stat[stat_name] = round(stat[stat_name] + stat_bonus, 3)
+        
+        stat[luck_stat_name] = round(stat[luck_stat_name] + luck_stat, 3)
 
         total_xp = ceil( data['level'] / self.config['X'] ) ** self.config['Y']
         print(f"X:{self.config['X']}")
