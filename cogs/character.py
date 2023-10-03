@@ -73,9 +73,6 @@ class Character(commands.Cog, name="character"):
         stat[luck_stat_name] = round(stat[luck_stat_name] + luck_stat, 3)
 
         total_xp = ceil( data['level'] / self.config['X'] ) ** self.config['Y']
-        print(f"X:{self.config['X']}")
-        print(f"Y:{self.config['Y']}")
-        print(f"total xp: {total_xp}")
         if data['limit_experience'] < xp:
             xp = data['limit_experience']
         current_xp = xp + data['experience']
