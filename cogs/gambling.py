@@ -41,7 +41,7 @@ class Gambling(commands.Cog, name="gambling"):
             return
 
 
-        await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']} Bloody Coins**!")
+        await context.channel.send(f"💰{context.message.author.display_name}, you currently have **{data['cash']:,} Bloody Coins**!")
 
     @commands.hybrid_command(
         name="level",
@@ -63,7 +63,6 @@ class Gambling(commands.Cog, name="gambling"):
 
         embed = Embed(title=f"{user.display_name}'s Information", color=Color.red())
         embed.set_thumbnail(url=user.avatar.url)
-        embed.add_field(name="Level", value=data['level'])
         embed.add_field(name="Role", value=user.top_role.name)
         dashes = 10
         total_xp = ceil( data['level'] / self.config['X'] ) ** self.config['Y']
@@ -75,7 +74,7 @@ class Gambling(commands.Cog, name="gambling"):
         progressDisplay = '🟦' * currentDashes
         remainingDisplay = '⬛' * remainingDashes
 
-        embed.add_field(name=f"Progress ({data['experience']:,} / {total_xp:,})", value=f"{progressDisplay}{remainingDisplay}", inline=False)
+        embed.add_field(name=f"Level {data['level']} ({data['experience']:,} / {total_xp:,} xp)", value=f"{progressDisplay}{remainingDisplay}", inline=False)
         embed.set_footer(text="Powered by Vampire")
         await context.channel.send(embed=embed)
 
