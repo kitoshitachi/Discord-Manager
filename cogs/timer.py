@@ -38,7 +38,7 @@ class Timer(commands.Cog, name="timer"):
             CustomActivity(name="Fighting !", emoji='⚔️'),
             CustomActivity(name="Sleeping !", emoji='⚰️'),
         ]
-        await self.change_presence(status=Status.online,
+        await self.bot.change_presence(status=Status.online,
                                 activity=choice(Activities))
 
     @status_task.before_loop
