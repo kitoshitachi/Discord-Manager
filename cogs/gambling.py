@@ -6,6 +6,8 @@ Description:
 Version: 6.1.0
 """
 
+import yaml
+from math import ceil
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord import Embed, Color
@@ -17,6 +19,8 @@ class Gambling(commands.Cog, name="gambling"):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.supabase = Database()
+        with open('config.yml','r') as f:
+            self.config = yaml.safe_load(f)
 
     @commands.hybrid_command(
         name="cash",
@@ -61,6 +65,17 @@ class Gambling(commands.Cog, name="gambling"):
         embed.set_thumbnail(url=user.avatar.url)
         embed.add_field(name="Level", value=data['level'])
         embed.add_field(name="Role", value=user.top_role.name)
+        dashes = 10
+        total_xp = ceil( data['level'] / self.config['X'] ) ** self.config['Y']
+
+        dashConvert = int(total_xp / dashes)
+        currentDashes = int(data['experience'] / dashConvert)
+        remainingDashes = dashes - currentDashes
+
+        progressDisplay = '🟦' * currentDashes
+        remainingDisplay = '⬛' * remainingDashes
+
+        embed.add_field(name=f"Progress ({data['experience']:,} / {total_xp:,})", value=f"{progressDisplay}{remainingDisplay}", inline=False)
         embed.set_footer(text="Powered by Vampire")
         await context.channel.send(embed=embed)
 
