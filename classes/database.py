@@ -22,13 +22,18 @@ class Database:
 
     
     def update(self, _id:int = None, data = None) -> bool:
-        if _id is None or data == None:
+        if data == None:
             return False
 
-        self.__supabase.from_('Member') \
+        if _id == None:
+            self.__supabase.from_('Member') \
             .update(data) \
-            .eq('id', _id) \
             .execute()
+        else:
+            self.__supabase.from_('Member') \
+                .update(data) \
+                .eq('id', _id) \
+                .execute()
         return True
     
     def init_member(self, _id:int = None) -> bool:

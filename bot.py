@@ -46,32 +46,8 @@ class DiscordBot(commands.Bot):
 
         except Exception as e:
           exception = f"{type(e).__name__}: {e}"
-          self.logger.error(
-              f"Failed to load extension {extension}\n{exception}")
-          embed = discord.Embed(
-              title=f"Error load cogs",
-              description=f"Failed to load extension {extension}\n{exception}",
-              timestamp=datetime.now(),
-              color=discord.Color.red())
+          self.logger.error(f"Failed to load extension {extension}\n{exception}")
 
-          await self.logs_channel.send(embed=embed)
-
-  @tasks.loop(hours=8.0)
-  async def status_task(self) -> None:
-    """
-      Setup the game status task of the bot.
-    """
-    Activities = [
-        discord.CustomActivity(name="Drinking !", emoji='🍷'),
-        discord.CustomActivity(name="Fighting !", emoji='⚔️'),
-        discord.CustomActivity(name="Sleeping !", emoji='⚰️'),
-    ]
-    await self.change_presence(status=discord.Status.online,
-                               activity=random.choice(Activities))
-
-  @status_task.before_loop
-  async def before_status_task(self) -> None:
-    await self.wait_until_ready()
 
   async def setup_hook(self) -> None:
     self.logger.info(f"Logged in as {self.user.name}")
@@ -82,7 +58,6 @@ class DiscordBot(commands.Bot):
     self.logger.info("-------------------")
 
     await self.load_cogs()
-    self.status_task.start()
 
   async def on_message(self, message: discord.Message) -> None:
     """
@@ -121,12 +96,8 @@ class DiscordBot(commands.Bot):
       minutes, seconds = divmod(error.retry_after, 60)
       hours, minutes = divmod(minutes, 60)
       hours = hours % 24
-      embed = discord.Embed(
-          description=
-          f"**Please slow down** - You can use this command again in {f'{round(hours)} hours' if round(hours) > 0 else ''} {f'{round(minutes)} minutes' if round(minutes) > 0 else ''} {f'{round(seconds)} seconds' if round(seconds) > 0 else ''}.",
-          color=0xE02B2B,
-      )
-      await context.channel.send(embed=embed, delete_after=10)
+      await context.channel.send(content=f"**Please slow down** - You can use this command again in {f'{round(hours)} hours' if round(hours) > 0 else ''} {f'{round(minutes)} minutes' if round(minutes) > 0 else ''} {f'{round(seconds)} seconds' if round(seconds) > 0 else ''}.",
+                                  delete_after=10)
     elif isinstance(error, commands.MissingPermissions):
       embed = discord.Embed(
           description="You are missing the permission(s) `" +
