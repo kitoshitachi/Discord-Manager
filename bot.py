@@ -6,14 +6,13 @@ Description:
 Version: 6.1.0
 """
 
-import os, platform, yaml, random
-from logger import Logger
-from datetime import datetime
-
 import discord
+import os, platform, yaml
+
+from logger import Logger
 from discord import Member
 from discord.utils import get
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.ext.commands import Context
 
 intents = discord.Intents.default()
@@ -114,6 +113,8 @@ class DiscordBot(commands.Bot):
           color=0xE02B2B,
       )
       await context.channel.send(embed=embed)
+    else:
+      await context.channel.send(content=str(error).capitalize())
 
   async def on_member_update(self, before: Member, after: Member) -> None:
     special_role = get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
