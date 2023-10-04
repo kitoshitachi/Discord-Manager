@@ -7,6 +7,7 @@ Version: 6.1.0
 """
 import json
 from math import ceil
+from discord import Embed
 import yaml
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -91,6 +92,32 @@ class Character(commands.Cog, name="character"):
                                   \n| Stat increase {stat_name.upper()}:{stat_bonus} " + (f" and {luck_stat_name.upper()}: {luck_stat}!" if luck_stat else "!") )
         else:
             await context.channel.send(f"something wrong ! {data}")
+
+    @commands.hybrid_command(
+        name='stat',
+        description =  'Show stat',
+    )
+    @commands.cooldown(1,45,commands.BucketType.user)
+    async def stat(self, context:Context) -> None:
+        user = context.author
+
+        data = self.supabase.get(user.id, 'character')
+        if data is None:
+            await create_member(self.bot, self.supabase, context, user.id)
+            return True
+        character = json.loads(data['character'])
+        character = self.world.get_stat(character)
+        embed = Embed(f"{user.display_name}'s stat", description=f'spirit points: {character["spirit"]}')
+        embed.add_field(name="HP ", value=character['hp'])
+        embed.add_field(name="MP ", value=character['mp'])
+        embed.add_field(name="STR ", value=character['str'])
+        embed.add_field(name="AGI ", value=character['agi'])
+        embed.add_field(name="DEF ", value=character['def'])
+        embed.add_field(name="CRIT ", value=character['crit'])
+        embed.set_footer(text='Powered by Vampire')
+        embed.set_thumbnail(url=user.avatar.url)
+        await context.channel.send(embed=embed)
+        pass
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:

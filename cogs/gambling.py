@@ -77,63 +77,7 @@ class Gambling(commands.Cog, name="gambling"):
 
         embed.add_field(name=f"Level {data['level']} ({data['experience']:,} / {total_xp:,} xp)", value=f"{progressDisplay}{remainingDisplay}", inline=False)
         embed.set_footer(text="Powered by Vampire")
-        await context.channel.send(embed=embed)
-
-    # @commands.hybrid_command(
-    #     name='flip',
-    #     description="gamble coin flip",
-    #     aliases=['cf']
-    # )
-    # async def flip(self, context:Context, flag:str = 't 1') -> None:
-    #     flag = flag.split(' ')
-    #     if len(flag) > 2:
-    #         raise commands.BadArgument('Wrong syntax!')
-        
-    #     if flag[0] == 'all':
-    #         bet = 250000
-    #         choice = flag[1]
-    #     elif flag[1] == 'all':
-    #         bet = 250000
-    #         choice = flag[0]
-    #     elif flag[0].isdecimal():
-    #         bet = flag[0]
-    #         choice = flag[1]
-    #     elif flag[1].isdecimal():
-    #         bet = flag[1]
-    #         choice = flag[0]
-    #     else:
-    #         raise commands.BadArgument('Wrong syntax!')
-
-
-    #     if choice in ['t','tail']:
-    #         choice = 1
-    #     elif choice in ['h','head']:
-    #         choice = 0
-    #     else:
-    #         raise commands.BadArgument('Wrong syntax!')
-
-    #     user = context.author
-    #     error, data = self.check_bet(user.id, bet)
-    #     if error is True:
-    #         await context.channel.send(f"{user.mention}, **you don't have enough Bloody Coins!**",delete_after=10.)
-    #     else:
-    #         result = randint(0,1)
-    #         if result == choice:
-    #             data['cash'] += bet
-    #             await context.channel.send(f"{user.mention}, you won **{bet:,} Bloody Coins!**")
-    #         else:
-    #             data['cash'] -= bet
-    #             await context.channel.send(f"{user.mention}, you lost **{bet:,} Bloody Coins!**")
-            
-    #         self.supabase.update(user.id, data)
-        
-        
-    #     pass
-
-    # def check_bet(self, id:int, bet:int):
-    #     data = self.supabase.get(id,'cash')
-    #     return bool(data['cash'] < bet), data
-        
+        await context.channel.send(embed=embed)        
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
