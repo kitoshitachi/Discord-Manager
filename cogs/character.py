@@ -108,17 +108,26 @@ class Character(commands.Cog, name="character"):
  
         character_stat = self.world.get_stat(character)
 
-        embed = Embed(title=f"{user.display_name}'s stat", description=f'spirit: {character["spirit"]}')
-        embed.add_field(name=f"HP ", value=character_stat['hp'])
-        embed.add_field(name="STR ", value=character_stat['str'])
-        embed.add_field(name="DEF ", value=character_stat['def'])
-        embed.add_field(name="MP ", value=character_stat['mp'])
-        embed.add_field(name="AGI ", value=character_stat['agi'])
-        embed.add_field(name="CRIT ", value=character_stat['crit'])
+        embed = Embed(title=f"{user.display_name}'s stat", 
+                      description=f"\
+            \n🩸 {character_stat['hp']:0>4} 💧 {character_stat['mp']:0>4}\n\
+            \n💪 {character_stat['str']:0>4} 🦵 {character_stat['agi']:0>4}\n\
+            \n🛡️ {character_stat['def']:0>4} 💥 {character_stat['crit']:0>4}\n\
+            \nSpirit: {character['spirit']} \
+        ")
         embed.set_footer(text='Powered by Vampire')
         embed.set_thumbnail(url=user.avatar.url)
         await context.channel.send(embed=embed)
         pass
+
+    @commands.hybrid_command(
+        name='add',
+        description =  'Add stat',
+    )
+    @commands.cooldown(1,15,commands.BucketType.user)
+    async def add(self, context:Context, stat:str, number:int) -> None:
+        await context.channel.send("updating ^^")
+        pass    
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:
