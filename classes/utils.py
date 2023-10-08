@@ -14,7 +14,7 @@ async def create_member(bot: Client, database:Database , context:Context, _id:in
     def check(reaction, user):
         return user == context.author and str(reaction.emoji) in valid_reactions
 
-    reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+    reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check, timeout=20.)
 
     if str(reaction.emoji) == valid_reactions[0]:
         result = database.init_member(_id) 
