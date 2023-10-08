@@ -20,20 +20,24 @@ class Database:
 
         return data[1][0]
 
+    def reset_limit(self) -> None:
+        self.__supabase.from_('Member') \
+            .update({'limit_experience':3000, 'limit_work' : 1000}) \
+            .lt('limit_experience', 3000) \
+            .execute()
+        
+        self.__supabase.from_('Member') \
+            .update({'limit_work' : 1000}) \
+            .lt('limit_work', 1000) \
+            .execute()
     
     def update(self, _id:int = None, data = None) -> bool:
-        if data == None:
-            return False
-
         if _id == None:
-            self.__supabase.from_('Member') \
+            return False
+        self.__supabase.from_('Member') \
             .update(data) \
+            .eq('id', _id) \
             .execute()
-        else:
-            self.__supabase.from_('Member') \
-                .update(data) \
-                .eq('id', _id) \
-                .execute()
         return True
     
     def init_member(self, _id:int = None) -> bool:

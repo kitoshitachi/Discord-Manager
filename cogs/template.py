@@ -9,26 +9,28 @@ Version: 6.1.0
 from discord.ext import commands
 from discord.ext.commands import Context
 
+from classes.database import Database
+
 
 # Here we name the cog and create a new class for the cog.
 class Template(commands.Cog, name="template"):
     def __init__(self, bot) -> None:
         self.bot = bot
+        self.supabase = Database()
 
     # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
 
     @commands.hybrid_command(
-        name="testcommand",
+        name="test",
         description="This is a testing command that does nothing.",
     )
-    async def testcommand(self, context: Context) -> None:
+    async def test(self, context: Context) -> None:
         """
         This is a testing command that does nothing.
 
         :param context: The application command context.
         """
         # Do your stuff here
-
         # Don't forget to remove "pass", I added this just because there's no content in the method.
         pass
 

@@ -4,11 +4,7 @@ from classes.database import Database
 from discord.ext import commands, tasks
 from discord import Client, CustomActivity, Status
 
-utc = datetime.timezone.utc
-
 # If no tzinfo is given then UTC is assumed.
-time = datetime.time(hour=12, minute=0, tzinfo=utc)
-
 class Timer(commands.Cog, name="timer"):
     def __init__(self, bot:Client):
         self.bot = bot
@@ -19,13 +15,9 @@ class Timer(commands.Cog, name="timer"):
     def cog_unload(self):
         self.my_task.cancel()
 
-    @tasks.loop(time=time)
+    @tasks.loop(time= datetime.time(hour=5, minute=0))
     async def reset_limit(self):
-        self.database.update(data={'limit_experience':3000, 'limit_work' : 1000})
-
-    @reset_limit.before_loop
-    async def before_reset_limit(self) -> None:
-        await self.bot.wait_until_ready()
+        self.database.reset_limit()
 
     
     @tasks.loop(hours=8.0)
