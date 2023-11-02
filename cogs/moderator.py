@@ -8,7 +8,7 @@ Version: 6.1.0
 
 import re
 import discord
-from discord import app_commands
+from discord import Member, app_commands
 from discord.ext.commands import (
   Context, Cog,
   hybrid_command, has_permissions, bot_has_permissions
@@ -79,6 +79,27 @@ class Moderator(Cog, name="Moderator"):
       nickname += ' ' + member.top_role.name.split(' ')[-1]
 
     await member.edit(nick=nickname)
+
+  @Cog.listener()
+  async def on_member_update(self, before: Member, after: Member) -> None:
+    special_role = get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
+
+    if before.top_role.name != after.top_role.name:
+      display_name = after.display_name  #or after.name
+      if after.top_role.position > special_role.position:
+        if before.top_role.position > special_role.position:
+          display_name = display_name.split(' ')
+          display_name.pop()
+          display_name = ' '.join(display_name)
+
+        display_name = f"{display_name} {after.top_role.name.split(' ')[-1]}"
+
+      elif after.top_role.position < special_role.position and before.top_role.position > special_role.position:
+        display_name = display_name.split(' ')
+        display_name.pop()
+        display_name = ' '.join(display_name)
+
+      await after.edit(nick=display_name)
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 
