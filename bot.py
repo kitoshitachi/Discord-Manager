@@ -24,7 +24,7 @@ class DiscordBot(commands.Bot):
 
   def __init__(self) -> None:
     super().__init__(
-        command_prefix=commands.when_mentioned_or(PREFIX_BOT),
+        command_prefix=PREFIX_BOT,
         intents=intents,
         help_command=None,
     )
