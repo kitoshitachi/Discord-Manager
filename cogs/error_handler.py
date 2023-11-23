@@ -10,7 +10,6 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context, Cog
 from cores.database import Database
-from cores.errors import DataNotFound
 from discord.ext.commands import CommandOnCooldown, MissingPermissions, BotMissingPermissions, CommandNotFound
 
 class ErrorHandler(commands.Cog):
