@@ -4,11 +4,11 @@ from typing import Optional
 
 # Third-party imports
 import discord
-from discord import Member
+from discord import Member, app_commands
 from discord.ext import commands
 from discord.ext.commands import (
-  Context, Cog,
-  has_permissions, bot_has_permissions
+  Context, Cog,  # Context and Cog are required for the bot to work.
+  has_permissions, bot_has_permissions,  # Check if the bot has the required permissions.
 )
 from discord.utils import get
 import yaml
@@ -28,7 +28,7 @@ class Moderator(Cog, name="Moderator"):
                     aliases=['purge', 'delete'])
     @has_permissions(manage_messages=True)
     @bot_has_permissions(manage_messages=True)
-    @commands.app_commands.describe(
+    @app_commands.describe(
         amount="The amount of messages that should be deleted.")
     async def clear(self, ctx: Context, amount: int) -> None:
         """
@@ -56,7 +56,7 @@ class Moderator(Cog, name="Moderator"):
         description="Change the nickname of a user on a server.",
     )
     @bot_has_permissions(manage_nicknames=True)
-    @commands.app_commands.describe(nickname="The new nickname that should be set.", )
+    @app_commands.describe(nickname="The new nickname that should be set.", )
     async def nick(self,
                    ctx,
                    user: Optional[Member] = None,
