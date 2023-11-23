@@ -6,20 +6,21 @@ from discord import Client, CustomActivity, Status
 
 # If no tzinfo is given then UTC is assumed.
 class Timer(commands.Cog, name="timer"):
-    def __init__(self, bot:Client):
+
+    def __init__(self, bot: Client):
         self.bot = bot
         self.database = Database()
         self.status_task.start()
         self.reset_limit.start()
+        self.my_task = None
 
     def cog_unload(self):
         self.my_task.cancel()
 
-    @tasks.loop(time= datetime.time(hour=5, minute=0))
+    @tasks.loop(time=datetime.time(hour=5, minute=0))
     async def reset_limit(self):
         self.database.reset_limit()
 
-    
     @tasks.loop(hours=8.0)
     async def status_task(self) -> None:
         """
@@ -31,7 +32,7 @@ class Timer(commands.Cog, name="timer"):
             CustomActivity(name="Sleeping !", emoji='⚰️'),
         ]
         await self.bot.change_presence(status=Status.online,
-                                activity=choice(Activities))
+                                       activity=choice(Activities))
 
     @status_task.before_loop
     async def before_status_task(self) -> None:
