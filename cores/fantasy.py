@@ -138,7 +138,7 @@ class FantasyWorld:
 @dataclass_json
 @dataclass(slots=True)
 class Character():
-    base_stat: Stat = field(default = Stat(*random_stat(6, 6)))
+    base_stat: Stat = field(default=Stat(*random_stat(6, 6)))
     bonus_stat: Stat = field(default=Stat())
     infor: Infor = Infor()
 
