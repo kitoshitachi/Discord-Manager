@@ -139,8 +139,8 @@ class FantasyWorld:
 @dataclass(slots=True)
 class Character():
     base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
-    bonus_stat: Stat = field(default_factory= lambda: Stat())
-    infor: Infor = Infor()
+    bonus_stat: Stat = field(default=Stat)
+    infor: Infor = field(default_factory=Infor)
 
     @property
     def stat(self) -> Stat:
