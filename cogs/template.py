@@ -9,7 +9,7 @@ Version: 6.1.0
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from classes.database import Database
+from cores.database import Database
 
 
 # Here we name the cog and create a new class for the cog.

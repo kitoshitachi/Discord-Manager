@@ -1,6 +1,6 @@
 import datetime
 from random import choice
-from classes.database import Database
+from cores.database import Database
 from discord.ext import commands, tasks
 from discord import Client, CustomActivity, Status
 
