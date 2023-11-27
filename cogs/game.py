@@ -1,28 +1,27 @@
-""""
-Copyright © Krypton 2019-2023 - https://github.com/kkrypt0nn (https://krypton.ninja)
-Description:
-🐍 A simple template to start to code your own and personalized discord bot in Python programming language.
-
-Version: 6.1.0
-"""
-from datetime import datetime
+# standard library imports
 import functools
-import yaml
+from datetime import datetime
 
-from discord import Embed
+# Third-party imports
+import discord
 from discord.ext import commands
 from discord.ext.commands import Context
+
+# Local application/library specific imports
 from cores.database import Database
+import cores.parameters as parameter
 from cores.fantasy import Character, FantasyWorld
 
+# External library
+import yaml
 
 
-class Game(commands.Cog, name="rpg game"):
+class Game(commands.Cog, name="Game"):
     """
     A cog that represents a RPG game. It contains all the RPG game commands.
     """
 
-    def __init__(self, bot) -> None:
+    def __init__(self, bot: commands.Bot) -> None:
         """
         Initialize the Game cog with a bot, a database, and a fantasy world.
         :param bot: The bot client.
@@ -90,8 +89,9 @@ class Game(commands.Cog, name="rpg game"):
         return wrapper
 
     @commands.hybrid_command(name="train",
-                             description="train to get exp and stat",
-                             aliases=['t'])
+                             description="Train to get exp, cash and random stat.\nYou can train 1000 times per day to get cash, stat and 3000 exp per day.",
+                             aliases=['t'],
+                             with_app_command=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def train(self, context: Context) -> None:
@@ -120,23 +120,24 @@ class Game(commands.Cog, name="rpg game"):
     #================== profile =========================
 
     @commands.hybrid_command(name='profile',
-                             description='Show profile',
-                             aliases=['stat'])
+                             description="Show character's stats",
+                             aliases=['stat'],
+                             with_app_command=True)
     @commands.cooldown(1, 30, commands.BucketType.user)
     @ensure_user_exists
     async def stat(self, context: Context) -> None:
         """
-        The stat command. It allows the user to see his stats.
+        The stat command. It allows the user to see their character's stats.
+
         :param context: The application command context.
         :return: None
         """
-
         user = context.author
         data = self.supabase.select(user.id, 'character')
 
         player: Character = Character.from_json(data['character'])
 
-        embed = Embed(title=f"{user.display_name}'s information",
+        embed = discord.Embed(title=f"{user.display_name}'s information",
                       color=0xFF7F7F)
 
         dashes = 8
@@ -152,43 +153,41 @@ class Game(commands.Cog, name="rpg game"):
         max_len = len(str(current_stat.HP)) + 1
 
         embed.add_field(
-            name=
-            f"Level {player.infor.level} ({current_xp:,} / {total_xp:,} xp)",
+            name=f"Level {player.infor.level} ({current_xp:,} / {total_xp:,} XP)",
             value=f"{progressDisplay}{remainingDisplay}",
             inline=False)
 
-        embed.add_field(name="HP",
-                        value=f"{current_stat.HP:0>{max_len}}",
-                        inline=True)
-        embed.add_field(name="MP",
-                        value=f"{current_stat.MP:0>{max_len}}",
-                        inline=True)
-        embed.add_field(name="STR",
-                        value=f"{current_stat.STR:0>{max_len}}",
-                        inline=True)
-        embed.add_field(name="AGI",
-                        value=f"{current_stat.AGI:0>{max_len}}",
-                        inline=True)
-        embed.add_field(name="PR",
-                        value=f"{current_stat.PR:0>{max_len}}",
-                        inline=True)
-        embed.add_field(name="CR",  # CR = Critical Rate
-                        value=f"{current_stat.CR:0>{max_len}}",
-                        inline=True)
-        
+        stat_fields = [
+            ("HP", current_stat.HP),
+            ("MP", current_stat.MP),
+            ("STR", current_stat.STR),
+            ("AGI", current_stat.AGI),
+            ("PR", current_stat.PR),
+            ("CR", current_stat.CR)
+        ]
+
+        for name, value in stat_fields:
+            embed.add_field(name=name, value=f"{value:0>{max_len}}", inline=True)
+
         embed.set_footer(text='Powered by Vampire')
         embed.set_thumbnail(url=user.display_avatar.url)
         await context.channel.send(embed=embed)
 
-    @commands.hybrid_command(name='add', description='Add stat', aliases=['a'])
+    @commands.hybrid_command(name='upgrade', 
+                             description="Upgrade character's stats.\n", 
+                             aliases=['up'],
+                             with_app_command=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
-    async def add(self, context: Context, stat: str, spirit: int) -> None:
+    async def upgrade(self, context: Context, 
+                      stat:str = parameter.stat, 
+                      spirit:int = parameter.spirit) -> None:
         """
-        The add command. It allows the user to add stats.
+        The upgrade command. It allows the user to upgrade their character's stats.
+
         :param context: The application command context.
-        :param stat: The stat to add.
-        :param spirit: The spirit to add.
+        :param stat: The stat to upgrade. Options are: HP, MP, STR, AGI, PR, CR.
+        :param spirit: The amount of spirit to use for the upgrade.
         :return: None
         """
 
@@ -202,8 +201,8 @@ class Game(commands.Cog, name="rpg game"):
 
         await context.channel.send(msg)
 
-        pass
 
+    
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:
     await bot.add_cog(Game(bot))
