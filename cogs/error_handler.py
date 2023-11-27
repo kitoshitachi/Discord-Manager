@@ -12,7 +12,7 @@ from discord.ext.commands import Context, Cog
 from cores.database import Database
 from discord.ext.commands import CommandOnCooldown, MissingPermissions, BotMissingPermissions, CommandNotFound
 
-class ErrorHandler(commands.Cog):
+class ErrorHandler(commands.Cog, name="error_handler"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.supabase = Database()
