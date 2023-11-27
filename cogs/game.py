@@ -177,7 +177,7 @@ class Game(commands.Cog, name="rpg game"):
                         inline=True)
         
         embed.set_footer(text='Powered by Vampire')
-        embed.set_thumbnail(url=user.avatar.url)
+        embed.set_thumbnail(url=user.display_avatar.url)
         await context.channel.send(embed=embed)
 
     @commands.hybrid_command(name='add', description='Add stat', aliases=['a'])
