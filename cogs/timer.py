@@ -6,7 +6,9 @@ from discord import Client, CustomActivity, Status
 
 # If no tzinfo is given then UTC is assumed.
 class Timer(commands.Cog, name="timer"):
-
+    """
+    A cog that represents a timer. It contains all the timer commands.
+    """
     def __init__(self, bot: Client):
         self.bot = bot
         self.database = Database()
@@ -15,6 +17,9 @@ class Timer(commands.Cog, name="timer"):
         self.my_task = None
 
     def cog_unload(self):
+        '''
+        Cancel the task when the cog is unloaded.
+        '''
         self.my_task.cancel()
 
     @tasks.loop(time=datetime.time(hour=5, minute=0))
