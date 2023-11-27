@@ -7,6 +7,7 @@ from dataclasses_json import dataclass_json
 
 # Third-party imports
 import yaml
+from discord.ext import commands
 
 # Local application/library specific imports
 from cores.utils import random_stat
@@ -16,13 +17,21 @@ with open('config.yml', 'r') as f:
 
 @dataclass_json
 @dataclass(slots=True)
-class Stat():
+class Stat(commands.Converter):
     HP: float = field(default=0.0, init=True)
     MP: float = field(default=0.0, init=True)
     STR: float = field(default=0.0, init=True)
     AGI: float = field(default=0.0, init=True)
     PR: float = field(default=0.0, init=True)
     CR: float = field(default=0.0, init=True)
+
+    async def convert(self, ctx: commands.Context, argument: str) -> Stat:
+        argument = argument.upper()
+        if argument in self.__annotations__.keys():
+            return argument
+        else:
+            raise commands.BadArgument(
+                "Invalid stat name! Options are: HP, MP, STR, AGI, PR, CR.")
 
     def __add__(self, other):
         if isinstance(other, Stat):
@@ -156,8 +165,8 @@ class Character():
         Upgrade a specific stat of the character.
         '''
 
-        if stat.upper() not in Stat.__annotations__:
-            return "Invalid stat name!"
+        # if stat.upper() not in Stat.__annotations__:
+        #     return "Invalid stat name!"
 
         if spirit > self.infor.spirit:
             return "You don't have enough spirits!"
