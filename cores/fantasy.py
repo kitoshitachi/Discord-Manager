@@ -2,12 +2,11 @@
 from __future__ import annotations
 from math import ceil
 from random import randint, random, choice, uniform
-from dataclasses import dataclass, field, fields
-from typing import Dict, Literal
+from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 
 # Third-party imports
-import yaml, json
+import yaml
 
 # Local application/library specific imports
 from cores.utils import random_stat
@@ -15,7 +14,7 @@ from cores.utils import random_stat
 with open('config.yml', 'r') as f:
     config = yaml.safe_load(f)
 
-
+@dataclass_json
 @dataclass(slots=True)
 class Stat():
     HP: float = field(default=0.0, init=True)
@@ -43,7 +42,7 @@ class Stat():
             \nHP : {self.HP:0>{max_len}} MP : {self.MP:0>{max_len}}\n\
             \nSTR: {self.STR:0>{max_len}} AGI: {self.AGI:0>{max_len}}\n\
             \nPR : {self.PR:0>{max_len}} CR : {self.CR:0>{max_len}}\n"
-
+@dataclass_json
 @dataclass(slots=True)
 class Infor():
     level: int = field(default=1, init=True)
@@ -119,7 +118,6 @@ class Infor():
     def reset_spirit(self):
         self.spirit = self.level * config['SPIRIT_PER_LEVEL']
 
-
 @dataclass(frozen=True, eq=False, init=False)
 class FantasyWorld:
 
@@ -139,7 +137,7 @@ class FantasyWorld:
 @dataclass(slots=True)
 class Character():
     base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
-    bonus_stat: Stat = field(default=Stat)
+    bonus_stat: Stat = field(default_factory=Stat)
     infor: Infor = field(default_factory=Infor)
 
     @property
@@ -198,7 +196,15 @@ class Character():
         return xp, cash, stat_name, stat_increase, is_lvl_up
 
     def attack(self):
-        return self.stat.STR * (2 if random() < self.stat.CR / 100 else 1)
+        '''
+        Calculate and return the total damage dealt by the character.
+        If the character lands a critical hit, the damage is multiplied by 2.
+        '''
+        damage = self.stat.STR
+        if random() < self.stat.CR / 100:  # Critical hit chance
+            damage *= 2  # Critical hit multiplier
+
+        return damage
 
     def dodge(self):
         if random() < (self.stat.AGI / (self.stat.AGI + 100))**3:
@@ -212,17 +218,29 @@ class Character():
 
         return uniform(0.0, max_reduce)
 
+    def reflect_damage(self, damage):
+        '''
+        Calculate and return the reflected damage based on the character's HP and DEF.
+        '''
+        reflect_percentage = (self.stat.HP + self.stat.PR) / 1000  # Adjust this formula as needed
+        return damage * reflect_percentage
+
     def deal_damage(self, other: Character):
         '''
         Calculate and return the total damage dealt by the character to another character.
+        Also, calculate the reflected damage and subtract it from the character's HP.
         '''
         if other.dodge():
             return 0
 
         damage = self.attack()
         reduction = other.parry()
+        final_damage = damage * (1 - reduction)
 
-        return damage * (1 - reduction)
+        reflected_damage = other.reflect_damage(final_damage)
+        self.stat.HP -= reflected_damage  # Subtract reflected damage from attacker's HP
+
+        return final_damage
 
     def total_damage_received(self, attacker: Character):
         '''

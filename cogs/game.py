@@ -172,10 +172,10 @@ class Game(commands.Cog, name="rpg game"):
         embed.add_field(name="PR",
                         value=f"{current_stat.PR:0>{max_len}}",
                         inline=True)
-        embed.add_field(
-            name="CR",  # CR = Critical Rate
-            value=f"{current_stat.CR:0>{max_len}}",
-            inline=True)
+        embed.add_field(name="CR",  # CR = Critical Rate
+                        value=f"{current_stat.CR:0>{max_len}}",
+                        inline=True)
+        
         embed.set_footer(text='Powered by Vampire')
         embed.set_thumbnail(url=user.avatar.url)
         await context.channel.send(embed=embed)
