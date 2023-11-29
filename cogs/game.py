@@ -22,13 +22,12 @@ class Game(commands.Cog, name="game"):
 
     def __init__(self, bot: commands.Bot) -> None:
         """
-        Initialize the Game cog with a bot, a database, and a fantasy world.
+        The constructor for the Game class.
         :param bot: The bot client.
         """
         self.bot = bot
         self.config = CONFIG
         self.supabase = Database()
-        self.world = FantasyWorld()
         
 
     def ensure_user_exists(func):
@@ -46,8 +45,8 @@ class Game(commands.Cog, name="game"):
                 message = await context.channel.send(
                     'Agree to activate the system?')
                 
-                success_emoji = message.guild.emojis.get(self.config['SUCCESS_EMOJI'])
-                error_emoji = message.guild.emojis.get(self.config['ERROR_EMOJI'])
+                success_emoji = self.config['SUCCESS_EMOJI']
+                error_emoji = self.config['ERROR_EMOJI']
 
                 await message.add_reaction(success_emoji)
                 await message.add_reaction(error_emoji)
@@ -156,6 +155,7 @@ class Game(commands.Cog, name="game"):
 
         for name, value in stat_fields:
             embed.add_field(name=name, value=f"{value:0>{max_len}}", inline=True)
+        embed.add_field(name='', value=f'`Spirit {player.infor.spirit:,}`' , inline=False)
 
         embed.set_footer(text='Powered by Vampire')
         embed.set_thumbnail(url=user.display_avatar.url)
