@@ -8,7 +8,9 @@ from discord.ext.commands import (
 )
 
 from cores.fantasy import Stat
-__slots__ = ["Stat", "Spirit"]
+
+
+__slots__ = ["Stat", "Spirit", "Cash", "Limit", "PlayerConverter", "PositiveInteger", "StatDisplayMode", "Stat"]
 
 class StatDisplayMode(FlagConverter):
     def __init__(self) -> None:
