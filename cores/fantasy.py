@@ -11,9 +11,8 @@ from discord.ext import commands
 
 # Local application/library specific imports
 from cores.utils import random_stat
+from settings import CONFIG
 
-with open('config.yml', 'r') as f:
-    config = yaml.safe_load(f)
 
 @dataclass_json
 @dataclass(slots=True)
@@ -63,7 +62,7 @@ class Infor():
     @property
     def total_xp(self):
         if self._total_xp is None:
-            self._total_xp = ceil(self.level / config['X'])**config['Y']
+            self._total_xp = ceil(self.level / CONFIG['X'])**CONFIG['Y']
         return self._total_xp
 
     def __repr__(self) -> str:
@@ -74,7 +73,7 @@ class Infor():
     def level_up(self):
         while self.xp >= self.total_xp:
             self.level += 1
-            self.spirit += config['SPIRIT_PER_LEVEL']
+            self.spirit += CONFIG['SPIRIT_PER_LEVEL']
             self.xp -= self.total_xp
             self._total_xp = None  # Reset _total_xp so it gets recalculated
 
@@ -125,7 +124,7 @@ class Infor():
         return self.level > old_level
 
     def reset_spirit(self):
-        self.spirit = self.level * config['SPIRIT_PER_LEVEL']
+        self.spirit = self.level * CONFIG['SPIRIT_PER_LEVEL']
 
 @dataclass(frozen=True, eq=False, init=False)
 class FantasyWorld:
@@ -135,11 +134,11 @@ class FantasyWorld:
         '''
         return xp, cash, stat_increase
         '''
-        xp = randint(config['MIN_EXP'], config['MAX_EXP'])
-        cash = randint(config['MIN_COINS'], config['MAX_COINS'])
+        xp = randint(CONFIG['MIN_EXP'], CONFIG['MAX_EXP'])
+        cash = randint(CONFIG['MIN_COINS'], CONFIG['MAX_COINS'])
 
         stat_name = choice(list(Stat.__annotations__))
-        stat_increase = config['BIG_STAT_INCREASE'] if 1 - random() < config['STAT_PROBABILITY'] else config['SMALL_STAT_INCREASE']
+        stat_increase = CONFIG['BIG_STAT_INCREASE'] if 1 - random() < CONFIG['STAT_PROBABILITY'] else CONFIG['SMALL_STAT_INCREASE']
         return xp, cash, stat_name, stat_increase
 
 @dataclass_json

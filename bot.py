@@ -1,19 +1,19 @@
-""""
-Copyright © Krypton 2019-2023 - https://github.com/kkrypt0nn (https://krypton.ninja)
-Description:
-🐍 A simple template to start to code your own and personalized discord bot in Python programming language.
 
-Version: 6.1.0
-"""
+# STANDARD MODULES
+import os, platform
+from typing import Any, Callable, Optional
 
+# THIRD PARTY MODULES
 import discord
-import os, platform, yaml
-
-from logger import Logger
-from settings import PREFIX_BOT
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands.cog import Cog
+from discord.ext.commands.core import Command
+
+# LOCAL MODULES
+from logger import Logger
+from settings import CONFIG, PREFIX_BOT
 from cores.helpcommand import CustomHelpCommand
+
 
 intents = discord.Intents.default()
 intents.members = True
@@ -30,9 +30,7 @@ class DiscordBot(commands.Bot):
 				help_command=CustomHelpCommand(),
 		)
 		self.logger = Logger
-		with open('config.yml','r') as f:
-			self.config = yaml.safe_load(f)
-		self.logs_channel = self.get_partial_messageable(int(self.config['LOGS_CHANNEL']))
+		self.config = CONFIG
 
 	async def load_cogs(self) -> None:
 		"""
@@ -74,17 +72,13 @@ class DiscordBot(commands.Bot):
 			return
 		await self.process_commands(message)
 
-	async def on_command_completion(self, context: Context) -> None:
-		"""
-		The code in this event is executed every time a normal command has been *successfully* executed.
+	def get_command(self, name: str) -> Command[None, Callable[..., Any], Any] | None:
+		
+		return super().get_command(name.lower())
+	
+	def get_cog(self, name: str) -> Cog | None:
+		name = name.lower()
+		
+		return super().get_cog(name)
 
-		:param context: The context of the command that has been executed.
-		"""
-		full_command_name = context.command.qualified_name
-		split = full_command_name.split(" ")
-		executed_command = str(split[0])
-		if executed_command != 'clear':
-			await context.message.add_reaction('✅')
-		content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
-		self.logger.info(content)
-
+	

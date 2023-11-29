@@ -3,7 +3,6 @@ import re
 from typing import Optional
 
 # Third-party imports
-import discord
 from discord import Member, app_commands
 from discord.ext import commands
 from discord.ext.commands import (
@@ -11,16 +10,19 @@ from discord.ext.commands import (
   has_permissions, bot_has_permissions,  # Check if the bot has the required permissions.
 )
 from discord.utils import get
-import yaml
+
+from settings import CONFIG
 # Here we name the cog and create a new class for the cog.
 
 
-class Moderator(Cog, name="Moderator"):
-
-    def __init__(self, bot):
+class Moderator(Cog, name="moderator"):
+    """
+    **🕵️ Moderator**
+    It contains all the moderation commands.
+    """
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        with open('config.yml', 'r') as f:
-            self.config = yaml.safe_load(f)
+        self.config = CONFIG
 
     # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
     @commands.hybrid_command(name="clear",
@@ -97,5 +99,5 @@ class Moderator(Cog, name="Moderator"):
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(Moderator(bot))

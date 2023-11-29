@@ -1,20 +1,22 @@
-""""
-Copyright © Krypton 2019-2023 - https://github.com/kkrypt0nn (https://krypton.ninja)
-Description:
-🐍 A simple template to start to code your own and personalized discord bot in Python programming language.
 
-Version: 6.1.0
-"""
 
+
+#Third Party Library
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context, Cog
-from cores.database import Database
 from discord.ext.commands import CommandOnCooldown, MissingPermissions, BotMissingPermissions, CommandNotFound
 
-class ErrorHandler(commands.Cog, name="error_handler"):
-	def __init__(self, bot):
+#Local Application/Library Specific
+from logger import Logger
+from settings import CONFIG
+from cores.database import Database
+
+class Handler(commands.Cog, name="handler"):
+	def __init__(self, bot: commands.Bot):
 		self.bot = bot
+		self.config = CONFIG
+		self.logger = Logger
 		self.supabase = Database()
 
 	@Cog.listener()
@@ -33,8 +35,10 @@ class ErrorHandler(commands.Cog, name="error_handler"):
 			minutes, seconds = divmod(error.retry_after, 60)
 			hours, minutes = divmod(minutes, 60)
 			hours = hours % 24
-			await context.channel.send(content=f"**Please slow down** - You can use this command again in {f'{round(hours)} hours' if round(hours) > 0 else ''} {f'{round(minutes)} minutes' if round(minutes) > 0 else ''} {f'{round(seconds)} seconds' if round(seconds) > 0 else ''}.",
-																delete_after=10)
+			await context.channel.send(
+				content=f"**Please slow down** - You can use this command again in {f'{round(hours)} hours' if round(hours) > 0 else ''} {f'{round(minutes)} minutes' if round(minutes) > 0 else ''} {f'{round(seconds)} seconds' if round(seconds) > 0 else ''}.",
+				delete_after=10)
+			
 		elif isinstance(error, MissingPermissions):
 			embed = discord.Embed(
 				description="You are missing the permission(s) `" +
@@ -51,10 +55,31 @@ class ErrorHandler(commands.Cog, name="error_handler"):
 			)
 			await context.channel.send(embed=embed)
 		else:
-			print(error)
 			await context.channel.send(content=str(error).capitalize())
+			self.logger.error(error)
 		
+		await context.message.add_reaction(self.config['ERROR_EMOJI'])
+	
+	
+	@Cog.listener()
+	async def on_command_completion(self, context: Context) -> None:
+		"""
+		The code in this event is executed every time a normal command has been *successfully* executed.
+
+		:param context: The context of the command that has been executed.
+		"""
+		full_command_name = context.command.qualified_name
+		split = full_command_name.split(" ")
+		executed_command = str(split[0])
+		if executed_command != 'clear':
+			await context.message.add_reaction(self.config['SUCCESS_EMOJI'])
+		content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
+		self.logger.info(content)
+
+
+
+
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
-async def setup(bot) -> None:
-	await bot.add_cog(ErrorHandler(bot))
+async def setup(bot: commands.Bot) -> None:
+	await bot.add_cog(Handler(bot))
