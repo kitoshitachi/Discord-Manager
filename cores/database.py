@@ -35,11 +35,11 @@ class Database:
             .execute()
     
 
-    def update(self, _id:int, data:Union[dict, None]):  
-        if isinstance(data, dict) and _id is not None:
+    def update(self, id:int, data:Union[dict, None]):  
+        if isinstance(data, dict) and id is not None:
             self.__supabase.from_('Member') \
                 .update(data) \
-                .eq('id', _id) \
+                .eq('id', id) \
                 .execute()
     
 
@@ -49,9 +49,9 @@ class Database:
                 .insert(data) \
                 .execute()
     
-    def delete(self, _id:int):
-        if _id is not None:
+    def delete(self, id:int):
+        if id is not None:
             self.__supabase.from_('Member') \
                 .delete() \
-                .eq('id', _id) \
+                .eq('id', id) \
                 .execute()

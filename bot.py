@@ -1,10 +1,10 @@
 
 # STANDARD MODULES
 import os, platform
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 # THIRD PARTY MODULES
-import discord
+from discord import Message, Intents, __version__
 from discord.ext import commands
 from discord.ext.commands.cog import Cog
 from discord.ext.commands.core import Command
@@ -15,7 +15,7 @@ from settings import CONFIG, PREFIX_BOT
 from cores.helpcommand import CustomHelpCommand
 
 
-intents = discord.Intents.default()
+intents = Intents.default()
 intents.members = True
 intents.message_content = True
 intents.presences = True
@@ -54,7 +54,7 @@ class DiscordBot(commands.Bot):
 		This function is called when the bot is ready and logged in.
 		'''
 		self.logger.info(f"Logged in as {self.user.name}")
-		self.logger.info(f"discord.py API version: {discord.__version__}")
+		self.logger.info(f"discord.py API version: {__version__}")
 		self.logger.info(f"Python version: {platform.python_version()}")
 		self.logger.info(
 				f"Running on: {platform.system()} {platform.release()} ({os.name})")
@@ -62,7 +62,7 @@ class DiscordBot(commands.Bot):
 
 		await self.load_cogs()
 
-	async def on_message(self, message: discord.Message) -> None:
+	async def on_message(self, message: Message) -> None:
 		"""
 		The code in this event is executed every time someone sends a message, with or without the prefix
 
@@ -70,6 +70,7 @@ class DiscordBot(commands.Bot):
 		"""
 		if message.author == self.user or message.author.bot:
 			return
+		
 		await self.process_commands(message)
 
 	def get_command(self, name: str) -> Command[None, Callable[..., Any], Any] | None:
@@ -80,5 +81,3 @@ class DiscordBot(commands.Bot):
 		name = name.lower()
 		
 		return super().get_cog(name)
-
-	
