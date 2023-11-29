@@ -1,6 +1,7 @@
 # standard library imports
 import functools
 from datetime import datetime
+from typing import Optional
 
 # Third-party imports
 import discord
@@ -11,14 +12,12 @@ from discord.ext.commands import Context
 from cores.database import Database
 import cores.parameters as parameter
 from cores.fantasy import Character, FantasyWorld
+from settings import CONFIG
 
-# External library
-import yaml
-
-
-class Game(commands.Cog, name="Game"):
+class Game(commands.Cog, name="game"):
     """
-    A cog that represents a RPG game. It contains all the RPG game commands.
+    **🎮 Game**
+    It contains all the RPG game commands.
     """
 
     def __init__(self, bot: commands.Bot) -> None:
@@ -27,26 +26,10 @@ class Game(commands.Cog, name="Game"):
         :param bot: The bot client.
         """
         self.bot = bot
+        self.config = CONFIG
         self.supabase = Database()
         self.world = FantasyWorld()
-        self.config = self.load_config()
-
-    def load_config(self):
-        """
-        Load the configuration from a YAML file.
-        :return: The configuration.
-        """
-        try:
-            with open('config.yml', 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            print("Config file not found. Please ensure 'config.yml' exists.")
-            return {}
-        except yaml.YAMLError:
-            print(
-                "Error parsing config file. Please ensure 'config.yml' is a valid YAML file."
-            )
-            return {}
+        
 
     def ensure_user_exists(func):
         """
@@ -62,9 +45,14 @@ class Game(commands.Cog, name="Game"):
             if data is None:
                 message = await context.channel.send(
                     'Agree to activate the system?')
-                await message.add_reaction('✅')
-                await message.add_reaction('❎')
-                valid_reactions = ['✅', '❎']
+                
+                success_emoji = message.guild.emojis.get(self.config['SUCCESS_EMOJI'])
+                error_emoji = message.guild.emojis.get(self.config['ERROR_EMOJI'])
+
+                await message.add_reaction(success_emoji)
+                await message.add_reaction(error_emoji)
+
+                valid_reactions = [success_emoji, error_emoji]
 
                 def check(reaction, user):
                     return user == context.author and str(
@@ -121,7 +109,7 @@ class Game(commands.Cog, name="Game"):
 
     @commands.hybrid_command(name='profile',
                              description="Show character's stats",
-                             aliases=['stat'],
+                             aliases=['p', 'me', 'info'],
                              with_app_command=True)
     @commands.cooldown(1, 30, commands.BucketType.user)
     @ensure_user_exists
@@ -158,12 +146,12 @@ class Game(commands.Cog, name="Game"):
             inline=False)
 
         stat_fields = [
-            ("HP", current_stat.HP),
-            ("MP", current_stat.MP),
-            ("STR", current_stat.STR),
-            ("AGI", current_stat.AGI),
-            ("PR", current_stat.PR),
-            ("CR", current_stat.CR)
+            (self.config["HP_EMOJI"], current_stat.HP),
+            (self.config["MP_EMOJI"], current_stat.MP),
+            (self.config["STR_EMOJI"], current_stat.STR),
+            (self.config["AGI_EMOJI"], current_stat.AGI),
+            (self.config["PR_EMOJI"], current_stat.PR),
+            (self.config["CR_EMOJI"], current_stat.CR)
         ]
 
         for name, value in stat_fields:
@@ -180,8 +168,8 @@ class Game(commands.Cog, name="Game"):
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def upgrade(self, context: Context, 
-                      stat:str = parameter.stat, 
-                      spirit:int = parameter.spirit) -> None:
+                      stat:Optional[str] = parameter.stat, 
+                      spirit:Optional[int] = parameter.spirit) -> None:
         """
         The upgrade command. It allows the user to upgrade their character's stats.
 
@@ -201,8 +189,26 @@ class Game(commands.Cog, name="Game"):
 
         await context.channel.send(msg)
 
+    @commands.hybrid_command(name="cash",
+                            description="Show your cash",
+                            aliases=['bal', 'balance', 'money'],
+                            with_app_command=True)
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    @ensure_user_exists
+    async def cash(self, context: Context) -> None:
+        """
+        The cash command. It allows the user to see their cash.
 
+        :param context: The application command context.
+        :return: None
+        """
+        user = context.author
+        data = self.supabase.select(user.id, 'character')
+        player: Character = Character.from_json(data['character'])
+        cash = player.infor.cash
+        await context.channel.send(f"{self.config['CASH_EMOJI']} | You have {cash:,} cash.")
     
+
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:
     await bot.add_cog(Game(bot))
