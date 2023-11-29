@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 
 # Third-party imports
-import yaml
 from discord.ext import commands
 
 # Local application/library specific imports
@@ -30,7 +29,7 @@ class Stat(commands.Converter):
             return argument
         else:
             raise commands.BadArgument(
-                "Invalid stat name! Options are: HP, MP, STR, AGI, PR, CR.")
+                "Invalid display_stat name! Options are: HP, MP, STR, AGI, PR, CR.")
 
     def __add__(self, other):
         if isinstance(other, Stat):
@@ -50,6 +49,22 @@ class Stat(commands.Converter):
             \nHP : {self.HP:0>{max_len}} MP : {self.MP:0>{max_len}}\n\
             \nSTR: {self.STR:0>{max_len}} AGI: {self.AGI:0>{max_len}}\n\
             \nPR : {self.PR:0>{max_len}} CR : {self.CR:0>{max_len}}\n"
+    
+    
+    def round(self) -> Stat:
+        '''
+        Round all stats to a specific number of decimal places.
+        '''
+        # temp = 10 ** number
+        return Stat(
+            HP=round(self.HP, 4),
+            MP=round(self.MP, 4),
+            STR=round(self.STR, 4),
+            AGI=round(self.AGI, 4),
+            PR=round(self.PR, 4),
+            CR=round(self.CR, 4)
+        )
+
 @dataclass_json
 @dataclass(slots=True)
 class Infor():
@@ -141,45 +156,54 @@ class FantasyWorld:
         stat_increase = CONFIG['BIG_STAT_INCREASE'] if 1 - random() < CONFIG['STAT_PROBABILITY'] else CONFIG['SMALL_STAT_INCREASE']
         return xp, cash, stat_name, stat_increase
 
+
 @dataclass_json
 @dataclass(slots=True)
-class Character():
+class BaseCharacter:
     base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
     bonus_stat: Stat = field(default_factory=Stat)
     infor: Infor = field(default_factory=Infor)
 
     @property
-    def stat(self) -> Stat:
+    def total_stat(self) -> Stat:
         '''
-        Calculate and return the character's stats based on base and bonus stats.
+        Calculate and return the character's total stats based on base and bonus stats.
         '''
-        _stat = self.base_stat + self.bonus_stat
+        return self.base_stat + self.bonus_stat
+
+    @property
+    def display_stat(self) -> Stat:
+        '''
+        Display the character's stats based on base and bonus stats.
+        '''
+        _stat = self.total_stat
 
         return Stat(int(_stat.HP * 20 + 500), int(_stat.MP * 20 + 250),
                     int(_stat.STR * 5 + 100), int(_stat.AGI * 4 + 100),
                     int(_stat.PR * 2 + 20), int(_stat.CR))
 
-    def upgrade(self, stat: str, spirit: int):
-        '''
-        Upgrade a specific stat of the character.
-        '''
+    def __repr__(self) -> str:
+        return f"═══════════ Character Information ═══════════\n\
+                {self.infor.__repr__()}\n\
+                {self.display_stat.__repr__()}\
+                \n═════════════════════════════════════════════"
 
-        # if stat.upper() not in Stat.__annotations__:
-        #     return "Invalid stat name!"
+class Character(BaseCharacter):
+
+    def upgrade(self, display_stat: str, spirit: int):
+        '''
+        Upgrade a specific display_stat of the character.
+        '''
+        if spirit == "all":
+            spirit = self.infor.spirit
 
         if spirit > self.infor.spirit:
             return "You don't have enough spirits!"
 
-        setattr(self.bonus_stat, stat.upper(),
-                spirit + getattr(self.bonus_stat, stat.upper()))
+        setattr(self.bonus_stat, display_stat.upper(),
+                spirit + getattr(self.bonus_stat, display_stat.upper()))
         self.infor.decrease_spirit(spirit)
-        return f"You have upgraded {spirit} {stat}."
-
-    def __repr__(self) -> str:
-        return f"═══════════ Character Information ═══════════\n\
-                {self.infor.__repr__()}\n\
-                {self.stat.__repr__()}\
-                \n═════════════════════════════════════════════"
+        return f"You have upgraded {spirit} {display_stat}."
 
     def train(self, limited_xp: int, status: int) -> tuple[int, int, str, bool]:
         '''
@@ -208,20 +232,20 @@ class Character():
         Calculate and return the total damage dealt by the character.
         If the character lands a critical hit, the damage is multiplied by 2.
         '''
-        damage = self.stat.STR
-        if random() < self.stat.CR / 100:  # Critical hit chance
+        damage = self.display_stat.STR
+        if random() < self.display_stat.CR / 100:  # Critical hit chance
             damage *= 2  # Critical hit multiplier
 
         return damage
 
     def dodge(self):
-        if random() < (self.stat.AGI / (self.stat.AGI + 100))**3:
+        if random() < (self.display_stat.AGI / (self.display_stat.AGI + 100))**3:
             return True
 
         return False
 
     def parry(self):
-        total = self.stat.AGI + self.stat.PR
+        total = self.display_stat.AGI + self.display_stat.PR
         max_reduce = (total / (total + 100))**2
 
         return uniform(0.0, max_reduce)
@@ -230,7 +254,7 @@ class Character():
         '''
         Calculate and return the reflected damage based on the character's HP and DEF.
         '''
-        reflect_percentage = (self.stat.HP + self.stat.PR) / 1000  # Adjust this formula as needed
+        reflect_percentage = (self.display_stat.HP + self.display_stat.PR) / 1000  # Adjust this formula as needed
         return damage * reflect_percentage
 
     def deal_damage(self, other: Character):
@@ -246,7 +270,7 @@ class Character():
         final_damage = damage * (1 - reduction)
 
         reflected_damage = other.reflect_damage(final_damage)
-        self.stat.HP -= reflected_damage  # Subtract reflected damage from attacker's HP
+        self.display_stat.HP -= reflected_damage  # Subtract reflected damage from attacker's HP
 
         return final_damage
 

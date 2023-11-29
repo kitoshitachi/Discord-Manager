@@ -4,14 +4,14 @@ from datetime import datetime
 from typing import Optional
 
 # Third-party imports
-import discord
+from discord import Member, Embed
 from discord.ext import commands
 from discord.ext.commands import Context
 
 # Local application/library specific imports
 from cores.database import Database
 import cores.parameters as parameter
-from cores.fantasy import Character, FantasyWorld
+from cores.fantasy import Character, Stat
 from settings import CONFIG
 
 class Game(commands.Cog, name="game"):
@@ -108,11 +108,11 @@ class Game(commands.Cog, name="game"):
 
     @commands.hybrid_command(name='profile',
                              description="Show character's stats",
-                             aliases=['p', 'me', 'info'],
+                             aliases=['me', 'info'],
                              with_app_command=True)
     @commands.cooldown(1, 30, commands.BucketType.user)
     @ensure_user_exists
-    async def stat(self, context: Context) -> None:
+    async def profile(self, context: Context, mode:str = parameter.display_mode) -> None:
         """
         The stat command. It allows the user to see their character's stats.
 
@@ -124,7 +124,7 @@ class Game(commands.Cog, name="game"):
 
         player: Character = Character.from_json(data['character'])
 
-        embed = discord.Embed(title=f"{user.display_name}'s information",
+        embed = Embed(title=f"{user.display_name}'s information",
                       color=0xFF7F7F)
 
         dashes = 8
@@ -135,9 +135,12 @@ class Game(commands.Cog, name="game"):
 
         progressDisplay = '🟦' * currentDashes
         remainingDisplay = '⬛' * remainingDashes
-
-        current_stat = player.stat
-        max_len = len(str(current_stat.HP)) + 1
+        current_stat:Stat = getattr(player, mode)
+        if mode == 'display_stat':
+            max_len = len(current_stat.HP)
+        else:
+            max_len = 4
+            current_stat = current_stat.round()
 
         embed.add_field(
             name=f"Level {player.infor.level} ({current_xp:,} / {total_xp:,} XP)",
@@ -207,6 +210,57 @@ class Game(commands.Cog, name="game"):
         player: Character = Character.from_json(data['character'])
         cash = player.infor.cash
         await context.channel.send(f"{self.config['CASH_EMOJI']} | You have {cash:,} cash.")
+    
+    @commands.hybrid_command(name="give",
+                            description="Give cash to another user",
+                            aliases=['transfer'],
+                            with_app_command=True)
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    @ensure_user_exists
+    async def give(self, context: Context, 
+                   other: Optional[Member], 
+                   cash: Optional[int] = parameter.cash) -> None:
+        """
+        The give command. It allows the user to give cash to another user.
+
+        :param context: The application command context.
+        :param user: The user to give cash to.
+        :param cash: The amount of cash to give.
+        :return: None
+        """
+        if other == context.author:
+            await context.channel.send("You give cash to yourself.")
+            return
+
+
+        other_id = other.id
+        author_id = context.author.id
+
+        other_player_data = self.supabase.select(context.author.id, 'character')
+        if other is None:
+            await context.channel.send("User not found.")
+            return
+        
+        author_data = self.supabase.select(context.author.id, 'character')
+
+        other_player: Character = Character.from_json(other_player_data['character'])
+        author_player: Character = Character.from_json(author_data['character'])
+
+        if author_player.infor.cash < cash:
+            await context.channel.send("You don't have enough cash.")
+            return
+        
+        other_player.infor.cash += cash
+        author_player.infor.cash -= cash
+
+        other_player_data['character'] = other_player.to_json()
+        author_data['character'] = author_player.to_json()
+
+        self.supabase.update(other_id, other_player_data)
+        self.supabase.update(author_id, author_data)
+
+        await context.channel.send(f"You give {cash:,} cash to {other.mention}.")
+
     
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.

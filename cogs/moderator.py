@@ -3,14 +3,15 @@ import re
 from typing import Optional
 
 # Third-party imports
-from discord import Member, app_commands
+from discord import Member, app_commands, utils
 from discord.ext import commands
 from discord.ext.commands import (
   Context, Cog,  # Context and Cog are required for the bot to work.
   has_permissions, bot_has_permissions,  # Check if the bot has the required permissions.
 )
-from discord.utils import get
 
+# Local application/library specific imports
+import cores.parameters as parameter
 from settings import CONFIG
 # Here we name the cog and create a new class for the cog.
 
@@ -30,9 +31,8 @@ class Moderator(Cog, name="moderator"):
                     aliases=['purge', 'delete'])
     @has_permissions(manage_messages=True)
     @bot_has_permissions(manage_messages=True)
-    @app_commands.describe(
-        amount="The amount of messages that should be deleted.")
-    async def clear(self, ctx: Context, amount: int) -> None:
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def clear(self, ctx: Context, limit: int = parameter.limit) -> None:
         """
         Delete a number of messages.
 
@@ -40,11 +40,11 @@ class Moderator(Cog, name="moderator"):
         :param amount: The number of messages that should be deleted.
         """
         await ctx.send("Deleting messages...")
-        amount += 1
-        if amount > 99:
-            amount = 99
+        limit += 1
+        if limit > 99:
+            limit = 99
 
-        messages = await ctx.channel.purge(limit=amount)
+        messages = await ctx.channel.purge(limit=limit)
         await ctx.send(content=f"**{ctx.author}** cleared **{len(messages)}** messages!", 
                        delete_after=10)
 
@@ -54,7 +54,7 @@ class Moderator(Cog, name="moderator"):
     )
     @bot_has_permissions(manage_nicknames=True)
     @app_commands.describe(nickname="The new nickname that should be set.", )
-    async def nick(self, ctx: Context, user: Optional[Member] = None, *, nickname: Optional[str] = None):
+    async def nick(self, ctx: Context, user: Optional[Member] = parameter.player, *, nickname: Optional[str] = None):
         """
         Change the nickname of a user on a server.
 
@@ -63,7 +63,7 @@ class Moderator(Cog, name="moderator"):
         :param nickname: The new nickname of the user. Default is None, which will reset the nickname.
         """
         member = user or ctx.author
-        special_role = get(ctx.guild.roles, id=int(self.config['SPECIAL_ROLE']))
+        special_role = utils.get(ctx.guild.roles, id=int(self.config['SPECIAL_ROLE']))
 
         if not nickname:
             nickname = re.sub('[._ ]+', '', member.name)
@@ -77,7 +77,7 @@ class Moderator(Cog, name="moderator"):
 
     @Cog.listener()
     async def on_member_update(self, before: Member, after: Member) -> None:
-        special_role = get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
+        special_role = utils.get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
 
         if before.top_role.name != after.top_role.name:
             display_name = after.display_name
