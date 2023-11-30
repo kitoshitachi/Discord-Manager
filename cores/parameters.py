@@ -123,7 +123,7 @@ class PlayerConverter(IDConverter[Member]):
         Optional[:class:`~discord.Member`]
             The member or ``None`` if not found.
         """
-
+        member = None
         ws = bot._get_websocket(shard_id=guild.shard_id)
         cache = guild._state.member_cache_flags.joined
         if ws.is_ratelimited():
@@ -179,18 +179,19 @@ class PlayerConverter(IDConverter[Member]):
         match = self._get_id_match(argument) or re.match(r'<@!?([0-9]+)>$', argument)
         bot = ctx.bot
         guild = ctx.guild
-
+        member = None
+        member_id = None
         if match:
             member_id = int(match.group(1))
             member = utils.get(guild.members, id=member_id)
 
         if member is None or not isinstance(member, Member):
             if guild is None or member_id is None:
-                raise MemberNotFound(argument)
+                return argument
             member = await self.query_member_by_id(bot , guild, member_id)
-            if member is None:
-                raise MemberNotFound(argument)
-
+        
+        if member is None:
+            return argument
         return member
 
 
@@ -229,6 +230,7 @@ limit = parameter(
 )
 
 player = parameter(
+    default=None,
     converter=PlayerConverter,
     description="id or mention"
 )

@@ -54,7 +54,7 @@ class Moderator(Cog, name="moderator"):
     )
     @bot_has_permissions(manage_nicknames=True)
     @app_commands.describe(nickname="The new nickname that should be set.", )
-    async def nick(self, ctx: Context, user: Optional[Member] = parameter.player, *, nickname: Optional[str] = None):
+    async def nick(self, ctx: Context, member: Optional[Member] = parameter.player, *, nickname: Optional[str] = None):
         """
         Change the nickname of a user on a server.
 
@@ -62,7 +62,9 @@ class Moderator(Cog, name="moderator"):
         :param user: The user that should have its nickname changed.
         :param nickname: The new nickname of the user. Default is None, which will reset the nickname.
         """
-        member = user or ctx.author
+        if not isinstance(member, Member):
+            nickname = member + ' ' + nickname
+            member = ctx.author
         special_role = utils.get(ctx.guild.roles, id=int(self.config['SPECIAL_ROLE']))
 
         if not nickname:
