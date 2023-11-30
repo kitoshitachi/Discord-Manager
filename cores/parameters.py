@@ -4,7 +4,7 @@ from discord import Guild, HTTPException, Member, utils
 from discord.ext.commands import ( 
     Context, Bot, parameter,
     Converter, IDConverter, FlagConverter,
-    BadArgument, MemberNotFound, BadArgument
+    BadArgument, BadArgument
 )
 
 from cores.fantasy import Stat
@@ -58,10 +58,9 @@ class StatDisplayMode(FlagConverter):
         
     
 class PositiveInteger(Converter):
-    def __init__(self, *, minimum: int = 0, maximum: Optional[int] = None):
-        self.minimum = minimum
-        self.maximum = maximum
-        
+    '''
+    Converts to a positive integer.
+    '''
 
     async def convert(self, ctx: Context, argument: str):
         '''

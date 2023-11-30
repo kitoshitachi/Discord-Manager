@@ -249,8 +249,6 @@ class Game(commands.Cog, name="game"):
 
         if cash == 'all':
             cash = author_player.infor.cash
-        elif cash.isdigit():
-            cash = int(cash)
 
         if author_player.infor.cash < cash:
             await context.channel.send("You don't have enough cash.")
