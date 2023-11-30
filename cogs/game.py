@@ -219,7 +219,7 @@ class Game(commands.Cog, name="game"):
     @ensure_user_exists
     async def give(self, context: Context, 
                    other: Optional[Member], 
-                   cash: Optional[int] = parameter.cash) -> None:
+                   cash: Optional[str] = parameter.cash) -> None:
         """
         The give command. It allows the user to give cash to another user.
 
@@ -228,6 +228,7 @@ class Game(commands.Cog, name="game"):
         :param cash: The amount of cash to give.
         :return: None
         """
+        
         if other == context.author:
             await context.channel.send("You give cash to yourself.")
             return
@@ -236,22 +237,27 @@ class Game(commands.Cog, name="game"):
         other_id = other.id
         author_id = context.author.id
 
-        other_player_data = self.supabase.select(context.author.id, 'character')
-        if other is None:
+        other_player_data = self.supabase.select(other_id, 'character')
+        if other_player_data is None:
             await context.channel.send("User not found.")
             return
         
-        author_data = self.supabase.select(context.author.id, 'character')
+        author_data = self.supabase.select(author_id, 'character')
 
         other_player: Character = Character.from_json(other_player_data['character'])
         author_player: Character = Character.from_json(author_data['character'])
+
+        if cash == 'all':
+            cash = author_player.infor.cash
+        elif cash.isdigit():
+            cash = int(cash)
 
         if author_player.infor.cash < cash:
             await context.channel.send("You don't have enough cash.")
             return
         
-        other_player.infor.cash += cash
-        author_player.infor.cash -= cash
+        other_player.infor.add_cash(cash)
+        author_player.infor.decrease_cash(cash)
 
         other_player_data['character'] = other_player.to_json()
         author_data['character'] = author_player.to_json()
@@ -264,5 +270,5 @@ class Game(commands.Cog, name="game"):
     
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
-async def setup(bot) -> None:
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Game(bot))
