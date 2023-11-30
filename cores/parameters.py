@@ -35,7 +35,7 @@ class StatDisplayMode(FlagConverter):
         -----------
         ctx: :class:`Context`
             The invocation context that triggered this converter.
-        argument: :class:`str`. if argument is None, `display_stat` is returned.
+        argument: :class:`str`
             The argument that is being converted.
 
         Raises
@@ -49,9 +49,6 @@ class StatDisplayMode(FlagConverter):
             The stat display mode that was requested.
 
         '''
-        if argument is None:
-            return 'display_stat'
-
         argument = argument.lower()
         for key in self._mode.keys():
             if argument in self._mode[key]:
@@ -204,6 +201,7 @@ stat = parameter(
 )
 
 display_mode = parameter(
+    default="display_stat",
     converter=StatDisplayMode,
     description="The stat display mode to use.\
     \nDefault is display mode.\

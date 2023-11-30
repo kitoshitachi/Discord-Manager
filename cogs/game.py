@@ -137,7 +137,7 @@ class Game(commands.Cog, name="game"):
         remainingDisplay = '⬛' * remainingDashes
         current_stat:Stat = getattr(player, mode)
         if mode == 'display_stat':
-            max_len = len(current_stat.HP)
+            max_len = len(str(current_stat.HP))
         else:
             max_len = 4
             current_stat = current_stat.round()
