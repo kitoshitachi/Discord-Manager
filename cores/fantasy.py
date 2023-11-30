@@ -38,7 +38,7 @@ class Stat(commands.Converter):
                         STR=self.STR + other.STR,
                         AGI=self.AGI + other.AGI,
                         PR=self.PR + other.PR,
-                        CR=self.CR + other.CR)
+                        CR=self.CR + other.CR).round()
         else:
             raise TypeError(
                 "unsupported operand type(s) for +: 'Stat' and 'str'")
