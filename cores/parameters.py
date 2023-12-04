@@ -1,7 +1,7 @@
 from discord.ext.commands import parameter
 
 from cores.fantasy import Stat
-from cores.converter import StatDisplayMode, PositiveInteger, MemberConverter
+from cores.converter import StatDisplayMode, PositiveInteger
 
 
 __all__ = (
@@ -45,12 +45,6 @@ cash = parameter(
 limit = parameter(
     converter=PositiveInteger,
     description="The amount of messages to delete."
-)
-
-member = parameter(
-    default=None,
-    converter=MemberConverter,
-    description="id or mention"
 )
 
 nickname = parameter(
