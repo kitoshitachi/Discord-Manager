@@ -1,6 +1,5 @@
 import random
 
-
 def random_stat(n, total):
     """Return a randomly chosen list of n nonnegative integers summing to total.
     Each such list is equally likely to occur."""

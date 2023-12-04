@@ -3,7 +3,7 @@ import re
 from typing import Optional
 
 # Third-party imports
-from discord import Member, app_commands, utils
+from discord import Member, utils
 from discord.ext import commands
 from discord.ext.commands import (
   Context, Cog,  # Context and Cog are required for the bot to work.
@@ -13,8 +13,8 @@ from discord.ext.commands import (
 # Local application/library specific imports
 import cores.parameters as parameter
 from settings import CONFIG
-# Here we name the cog and create a new class for the cog.
 
+_extract_username = re.compile(r"[._ ]+").sub # regex to extract username
 
 class Moderator(Cog, name="moderator"):
     """
@@ -53,23 +53,22 @@ class Moderator(Cog, name="moderator"):
         description="Change the nickname of a user on a server.",
     )
     @bot_has_permissions(manage_nicknames=True)
-    @app_commands.describe(nickname="The new nickname that should be set.", )
-    async def nick(self, ctx: Context, member: Optional[Member] = parameter.player, *, nickname: Optional[str] = None):
+    async def nick(self, ctx: Context, member: Optional[Member] = parameter.member, *, nickname: Optional[str] = parameter.nickname):
         """
         Change the nickname of a user on a server.
-
-        :param ctx: The hybrid command ctx.
-        :param user: The user that should have its nickname changed.
-        :param nickname: The new nickname of the user. Default is None, which will reset the nickname.
+        
+        Parameters
+        -----------
+        member: :class:`discord.Member` or `~discord.User` or :class:`str`
+            The member or user that was requested.
+        nickname: :class:`str`
+            The new nickname.
         """
-        if not isinstance(member, Member):
-            nickname = member + ' ' + nickname
-            member = ctx.author
+        
+        
+
         special_role = utils.get(ctx.guild.roles, id=int(self.config['SPECIAL_ROLE']))
-
-        if not nickname:
-            nickname = re.sub('[._ ]+', '', member.name)
-
+        
         if member.top_role.position > special_role.position:
             nickname += ' ' + member.top_role.name.split(' ')[-1]
 
