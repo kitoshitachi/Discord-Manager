@@ -1,6 +1,8 @@
 
 from discord.ext.commands import ( 
-    Context, Converter, FlagConverter, BadArgument, BadArgument
+    Context, 
+    Converter, FlagConverter, 
+    BadArgument, BadArgument
 )
 
 class StatDisplayMode(FlagConverter):
@@ -42,6 +44,9 @@ class PositiveInteger(Converter):
     '''
     Converts to a positive integer.
     '''
+    def __init__(self, all = None) -> None:
+        super().__init__()
+        self.all = all or 'all'
 
     async def convert(self, ctx: Context, argument: str):
         '''
@@ -64,7 +69,7 @@ class PositiveInteger(Converter):
         '''
         try:
             if argument.lower() == "all":
-                return "all"
+                return self.all
             number = int(argument)
             if number < 0:
                 raise BadArgument(f"{argument} must be a positive integer.")
@@ -72,4 +77,17 @@ class PositiveInteger(Converter):
         except ValueError:
             raise BadArgument(f"{argument} invalid. Must be a positive integer.")
 
-    
+
+class KeyToIndex(Converter):
+
+    def __init__(self, data:list) -> None:
+        super().__init__()
+        self.list_of_keys = data
+
+    async def convert(self, ctx: Context, argument: str):
+
+        for index, key_alias in enumerate(self.list_of_keys):
+            if argument in key_alias:
+                return index
+        
+        raise KeyError

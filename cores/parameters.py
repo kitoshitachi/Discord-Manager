@@ -1,18 +1,11 @@
+"""
+Define param
+"""
+
 from discord.ext.commands import parameter
 
 from cores.fantasy import Stat
-from cores.converter import StatDisplayMode, PositiveInteger
-
-
-__all__ = (
-    "stat",
-    "display_mode",
-    "spirit",
-    "cash",
-    "limit",
-    "player"
-)
-
+from cores.converter import StatDisplayMode, PositiveInteger, KeyToIndex
 
 stat = parameter(
     converter=Stat, 
@@ -34,20 +27,40 @@ display_mode = parameter(
 
 spirit = parameter(
     converter=PositiveInteger,
-    description="The amount of spirit to use for the upgrade."
+    description="The amount of spirit to upgrade."
 )
 
 cash = parameter(
     converter=PositiveInteger,
-    description="The amount of cash to give."
+    description="The amount of cash to give"
 )
 
 limit = parameter(
-    converter=PositiveInteger,
-    description="The amount of messages to delete."
+    converter=PositiveInteger(all=100),
+    description="The amount of messages. Max is 100 per command"
+)
+
+bet = parameter(
+    default=1,
+    converter=PositiveInteger(all=250000),
+    description='The amount of cash to bet. \
+    \nMax is 250000 per command\
+    \nDefault is 1'
 )
 
 nickname = parameter(
     default=None,
     description="The new nickname."
+)
+
+choice = parameter(
+    default='head',
+    converter=KeyToIndex
+    (
+        [
+            ['head','h'],
+            ['tail','t']    
+        ]    
+    ),
+    description="choose face of coin"
 )

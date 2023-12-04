@@ -192,7 +192,7 @@ class Character(BaseCharacter):
 
     def upgrade(self, display_stat: str, spirit: int):
         '''
-        Upgrade a specific display_stat of the character.
+        Use spirit to upgrade a bonus stat of the character.
         '''
         if spirit == "all":
             spirit = self.infor.spirit

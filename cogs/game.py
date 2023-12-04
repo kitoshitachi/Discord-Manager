@@ -12,6 +12,7 @@ from discord.ext.commands import Context
 from cores.database import Database
 import cores.parameters as parameter
 from cores.fantasy import Character, Stat
+from cores.gambling import Slot, CoinFlip
 from settings import CONFIG
 
 class Game(commands.Cog, name="game"):
@@ -284,6 +285,39 @@ class Game(commands.Cog, name="game"):
         
         await context.channel.send(embed=embed)
 
+    @commands.hybrid_command(name="coinflip",
+                            description="coinflip game",
+                            aliases=['cf']
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    @ensure_user_exists
+    async def coinflip(self, 
+                       context:Context, 
+                       bet = parameter.bet, 
+                       choice: Optional[str] = parameter.choice):
+        
+        user_id = context.author.id
+
+        data = self.supabase.select(user_id, 'character')
+        character: Character = Character.from_json(data['character'])
+
+        current_cash = character.infor.cash
+
+        if bet > current_cash:
+            bet = current_cash
+
+        win = CoinFlip.play(choice)
+        if win:
+            character.infor.add_cash(bet)
+            await context.channel.send(content=f"You win {bet:,}. Ur cash is {character.infor.cash:,}")
+
+        else:
+            character.infor.decrease_cash(bet)
+            await context.channel.send(content=f"You lose {bet:,}. Ur cash is {character.infor.cash:,}")
+
+        data['character'] = character.to_json()
+
+        self.supabase.update(user_id, data)
 
     
 
