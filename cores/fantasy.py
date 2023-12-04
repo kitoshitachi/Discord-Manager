@@ -217,7 +217,6 @@ class Character(BaseCharacter):
 
         if status <= 0:
             status = 0
-            cash = 0
             stat_increase = 0
         else:
             setattr(self.base_stat, stat_name.upper(),

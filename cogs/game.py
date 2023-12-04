@@ -110,7 +110,7 @@ class Game(commands.Cog, name="game"):
                              description="Show character's stats",
                              aliases=['me', 'info'],
                              with_app_command=True)
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def profile(self, context: Context, mode:str = parameter.display_mode) -> None:
         """
@@ -264,6 +264,26 @@ class Game(commands.Cog, name="game"):
         self.supabase.update(author_id, author_data)
 
         await context.channel.send(f"You give {cash:,} cash to {other.mention}.")
+
+    @commands.hybrid_command(name="limit",
+                            description="Show limit train and xp",
+                            # aliases=['']
+    )
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    @ensure_user_exists
+    async def limit(self, context:Context):
+
+        user = context.author
+        data = self.supabase.select(user.id, 'status, limit_xp')
+        
+        embed = Embed(title="Today's Limit")
+        embed.add_field(name='Train', value=f'{data["status"]} times to increase stat', inline=False)
+        embed.add_field(name='Exp', value=f'{data["limit_xp"]} XP remaining', inline=False)
+        embed.set_footer(text='Powered by Vampire')
+        embed.set_thumbnail(url=user.display_avatar.url)
+        
+        await context.channel.send(embed=embed)
+
 
     
 
