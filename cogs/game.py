@@ -2,13 +2,15 @@
 import functools
 from datetime import datetime
 from typing import Optional
+from io import BytesIO
 
 # Third-party imports
-from discord import Member, Embed
+from discord import Member, Embed, File
 from discord.ext import commands
 from discord.ext.commands import Context
 
 # Local application/library specific imports
+from cores.card import Card
 from cores.database import Database
 import cores.parameters as parameter
 from cores.fantasy import Character, Stat
@@ -17,7 +19,7 @@ from settings import CONFIG
 
 class Game(commands.Cog, name="game"):
     """
-    **🎮 Game**
+    **<:game:1181633887978389524> Game**
     It contains all the RPG game commands.
     """
 
@@ -29,6 +31,7 @@ class Game(commands.Cog, name="game"):
         self.bot = bot
         self.config = CONFIG
         self.supabase = Database()
+        self.card = Card()
         
 
     def ensure_user_exists(func):
@@ -76,10 +79,11 @@ class Game(commands.Cog, name="game"):
 
         return wrapper
 
+
     @commands.hybrid_command(name="train",
                              description="Train to get exp, cash and random stat.\nYou can train 1000 times per day to get cash, stat and 3000 exp per day.",
-                             aliases=['t'],
-                             with_app_command=True)
+                             aliases=['t'])
+    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def train(self, context: Context) -> None:
@@ -109,8 +113,8 @@ class Game(commands.Cog, name="game"):
 
     @commands.hybrid_command(name='profile',
                              description="Show character's stats",
-                             aliases=['me', 'info'],
-                             with_app_command=True)
+                             aliases=['me', 'info'])
+    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def profile(self, context: Context, mode:str = parameter.display_mode) -> None:
@@ -125,50 +129,22 @@ class Game(commands.Cog, name="game"):
 
         player: Character = Character.from_json(data['character'])
 
-        embed = Embed(title=f"{user.display_name}'s information",
-                      color=0xFF7F7F)
+        name=user.display_name
+        avatar = await user.avatar.read()
+        image = self.card.image(name, player, mode, avatar)
 
-        dashes = 8
-        total_xp = player.infor.total_xp
-        current_xp = player.infor.xp
-        currentDashes = int(current_xp / int(total_xp / dashes))
-        remainingDashes = dashes - currentDashes
+        with BytesIO() as binary_image:
+            image.save(binary_image, format="PNG")
+            binary_image.seek(0)
+            await context.channel.send(file=File(fp=binary_image, filename="Profile.png"))
 
-        progressDisplay = '🟦' * currentDashes
-        remainingDisplay = '⬛' * remainingDashes
-        current_stat:Stat = getattr(player, mode)
-        if mode == 'display_stat':
-            max_len = len(str(current_stat.HP))
-        else:
-            max_len = 4
-            current_stat = current_stat.round()
 
-        embed.add_field(
-            name=f"Level {player.infor.level} ({current_xp:,} / {total_xp:,} XP)",
-            value=f"{progressDisplay}{remainingDisplay}",
-            inline=False)
-
-        stat_fields = [
-            (self.config["HP_EMOJI"], current_stat.HP),
-            (self.config["MP_EMOJI"], current_stat.MP),
-            (self.config["STR_EMOJI"], current_stat.STR),
-            (self.config["AGI_EMOJI"], current_stat.AGI),
-            (self.config["PR_EMOJI"], current_stat.PR),
-            (self.config["CR_EMOJI"], current_stat.CR)
-        ]
-
-        for name, value in stat_fields:
-            embed.add_field(name=name, value=f"{value:0>{max_len}}", inline=True)
-        embed.add_field(name='', value=f'`Spirit {player.infor.spirit:,}`' , inline=False)
-
-        embed.set_footer(text='Powered by Vampire')
-        embed.set_thumbnail(url=user.display_avatar.url)
-        await context.channel.send(embed=embed)
+        # await context.channel.send(embed=embed)
 
     @commands.hybrid_command(name='upgrade', 
                              description="Upgrade character's stats.\n", 
-                             aliases=['up'],
-                             with_app_command=True)
+                             aliases=['up'])
+    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def upgrade(self, context: Context, 
@@ -195,8 +171,8 @@ class Game(commands.Cog, name="game"):
 
     @commands.hybrid_command(name="cash",
                             description="Show your cash",
-                            aliases=['bal', 'balance', 'money'],
-                            with_app_command=True)
+                            aliases=['bal', 'balance', 'money'])
+    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def cash(self, context: Context) -> None:
@@ -214,8 +190,8 @@ class Game(commands.Cog, name="game"):
     
     @commands.hybrid_command(name="give",
                             description="Give cash to another user",
-                            aliases=['transfer'],
-                            with_app_command=True)
+                            aliases=['transfer'])
+    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def give(self, context: Context, 
@@ -270,6 +246,7 @@ class Game(commands.Cog, name="game"):
                             description="Show limit train and xp",
                             # aliases=['']
     )
+    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def limit(self, context:Context):
@@ -289,6 +266,7 @@ class Game(commands.Cog, name="game"):
                             description="coinflip game",
                             aliases=['cf']
     )
+    # @commands.group(name='Gambling')
     @commands.cooldown(1, 10, commands.BucketType.user)
     @ensure_user_exists
     async def coinflip(self, 
