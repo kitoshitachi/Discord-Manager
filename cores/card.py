@@ -30,10 +30,8 @@ class _BaseCard:
     offset_x = 410
     offset_y = 65
 
-    card = Image.open(CARD_IMAGE_PATH)
     title_font = ImageFont.truetype(FONT_PATH, 43)
     font = ImageFont.truetype(FONT_PATH, 20)
-    full_card = Image.new('RGBA', card.size, (255, 255, 255, 255))
 
 
 class Card(_BaseCard):
@@ -57,8 +55,11 @@ class Card(_BaseCard):
     @staticmethod
     def image(name, character:Character, mode, avatar = None):
         #define
-        draw_text = Pilmoji(Card.card)
-        draw = ImageDraw.Draw(Card.card)
+        card = Image.open(CARD_IMAGE_PATH)
+        
+        full_card = Image.new('RGBA', card.size, (255, 255, 255, 255))
+        draw_text = Pilmoji(card)
+        draw = ImageDraw.Draw(card)
         current_xp = character.infor.xp
         total_xp = character.infor.total_xp
         progress = current_xp / total_xp
@@ -100,7 +101,7 @@ class Card(_BaseCard):
                 draw_text.text(Card.get_offset_stat(column, row), f"{stat:0>{max_len}}", font=Card.title_font, fill=Card.red_color)
 
 
-        Card.full_card.paste(Card.card)
-        Card.full_card.paste(avatar, Card.avatar_offset)
-        
-        return Card.full_card
+        full_card.paste(card)
+        full_card.paste(avatar, Card.avatar_offset)
+
+        return full_card
