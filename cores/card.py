@@ -21,9 +21,9 @@ class _BaseCard:
     offset_x = 410
     offset_y = 65
 
-    card = Image.open('assets\RankCard\card.png')
-    title_font = ImageFont.truetype('assets\Font\ConcertOne-Regular.ttf', 43)
-    font = ImageFont.truetype('assets\Font\ConcertOne-Regular.ttf', 20)
+    card = Image.open('..\\assets\RankCard\card.png')
+    title_font = ImageFont.truetype('..\\assets\Font\ConcertOne-Regular.ttf', 43)
+    font = ImageFont.truetype('..\\assets\Font\ConcertOne-Regular.ttf', 20)
     full_card = Image.new('RGBA', card.size, (255, 255, 255, 255))
 
 
