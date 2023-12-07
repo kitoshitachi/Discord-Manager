@@ -10,8 +10,8 @@ from cores.fantasy import Character, Stat
 FILE_DIR  = os.path.dirname(os.path.abspath(__file__))
 
 PARENT_DIR = os.path.join(FILE_DIR, os.pardir)
-CARD_IMAGE_PATH = os.path.join(PARENT_DIR, 'assets\RankCard\card.png')
-FONT_PATH = os.path.join(PARENT_DIR, 'assets\Font\ConcertOne-Regular.ttf')
+CARD_IMAGE_PATH = os.path.join(PARENT_DIR, 'assets/RankCard/card.png')
+FONT_PATH = os.path.join(PARENT_DIR, 'assets/Font/ConcertOne-Regular.ttf')
 
 @dataclass(eq=False, repr=False)
 class _BaseCard:
