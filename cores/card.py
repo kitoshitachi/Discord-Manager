@@ -10,10 +10,8 @@ from cores.fantasy import Character, Stat
 FILE_DIR  = os.path.dirname(os.path.abspath(__file__))
 
 PARENT_DIR = os.path.join(FILE_DIR, os.pardir)
-
-
-def abc():
-    print(PARENT_DIR, FILE_DIR, sep="\n")
+CARD_IMAGE_PATH = os.path.join(PARENT_DIR, 'assets\RankCard\card.png')
+FONT_PATH = os.path.join(PARENT_DIR, 'assets\Font\ConcertOne-Regular.ttf')
 
 @dataclass(eq=False, repr=False)
 class _BaseCard:
@@ -32,9 +30,9 @@ class _BaseCard:
     offset_x = 410
     offset_y = 65
 
-    card = Image.open('assets\RankCard\card.png')
-    title_font = ImageFont.truetype('assets\Font\ConcertOne-Regular.ttf', 43)
-    font = ImageFont.truetype('assets\Font\ConcertOne-Regular.ttf', 20)
+    card = Image.open(CARD_IMAGE_PATH)
+    title_font = ImageFont.truetype(FONT_PATH, 43)
+    font = ImageFont.truetype(FONT_PATH, 20)
     full_card = Image.new('RGBA', card.size, (255, 255, 255, 255))
 
 
