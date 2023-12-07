@@ -9,8 +9,6 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 
-# CONFIG = {}
-
 try:
     with open('config.yml','r', encoding='utf-8') as f:
         CONFIG = yaml.load(f, Loader=yaml.FullLoader)

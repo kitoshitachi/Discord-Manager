@@ -1,8 +1,19 @@
+import os
+import io
+
+from pilmoji import Pilmoji
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
-from pilmoji import Pilmoji
-import io
+
 from cores.fantasy import Character, Stat
+
+FILE_DIR  = os.path.dirname(os.path.abspath(__file__))
+
+PARENT_DIR = os.path.join(FILE_DIR, os.pardir)
+
+
+def abc():
+    print(PARENT_DIR, FILE_DIR, sep="\n")
 
 @dataclass(eq=False, repr=False)
 class _BaseCard:
@@ -21,9 +32,9 @@ class _BaseCard:
     offset_x = 410
     offset_y = 65
 
-    card = Image.open('..\\assets\RankCard\card.png')
-    title_font = ImageFont.truetype('..\\assets\Font\ConcertOne-Regular.ttf', 43)
-    font = ImageFont.truetype('..\\assets\Font\ConcertOne-Regular.ttf', 20)
+    card = Image.open('assets\RankCard\card.png')
+    title_font = ImageFont.truetype('assets\Font\ConcertOne-Regular.ttf', 43)
+    font = ImageFont.truetype('assets\Font\ConcertOne-Regular.ttf', 20)
     full_card = Image.new('RGBA', card.size, (255, 255, 255, 255))
 
 
