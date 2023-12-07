@@ -84,7 +84,7 @@ class Card(_BaseCard):
             avatar = avatar.resize(Card.avatar_size)
         #draw
         draw_text.text((65, 55), name, font=Card.title_font, fill=Card.red_color)
-        draw_text.text((145, 125), f"{current_xp}/{total_xp}", font=Card.title_font, fill=Card.red_color)
+        draw_text.text((145, 125), f"{current_xp}/{total_xp} (Lv.{character.infor.level})", font=Card.title_font, fill=Card.red_color)
         
         draw = Card.new_bar(
             draw, Card.progress_x, Card.progress_y, 
