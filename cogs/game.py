@@ -7,13 +7,13 @@ from io import BytesIO
 # Third-party imports
 from discord import Member, Embed, File
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Context, BadArgument
 
 # Local application/library specific imports
 from cores.card import Card
 from cores.database import Database
 import cores.parameters as parameter
-from cores.fantasy import Character, Stat
+from cores.fantasy import Character
 from cores.gambling import Slot, CoinFlip
 from settings import CONFIG
 
@@ -217,8 +217,7 @@ class Game(commands.Cog, name="game"):
         other_player_data = self.supabase.select(other_id, 'character')
         if other_player_data is None:
             # await context.channel.send("User not found.")
-            raise ValueError("User not found.")
-            return
+            raise BadArgument("User not found.")
         
         author_data = self.supabase.select(author_id, 'character')
 
@@ -231,7 +230,7 @@ class Game(commands.Cog, name="game"):
             cash = author_player.infor.cash
 
         if author_cash < cash or author_cash == 0:
-            raise ValueError(f"{self.config['CASH_EMOJI']} | You have no money.")
+            raise BadArgument(f"{self.config['CASH_EMOJI']} | You have no money.")
         
         other_player.infor.add_cash(cash)
         author_player.infor.decrease_cash(cash)
@@ -285,7 +284,7 @@ class Game(commands.Cog, name="game"):
         current_cash = character.infor.cash
        
         if current_cash == 0:
-            raise ValueError(f"{self.config['CASH_EMOJI']} | You have no money.")
+            raise BadArgument(f"{self.config['CASH_EMOJI']} | You have no money.")
 
         if bet > current_cash:
             bet = current_cash
@@ -327,7 +326,7 @@ class Game(commands.Cog, name="game"):
             bet = current_cash
 
         if bet == 0:
-            raise ValueError(f"{self.config['CASH_EMOJI']} | You have no money.")
+            raise BadArgument(f"{self.config['CASH_EMOJI']} | You have no money.")
 
         result = Slot.play()
         message = f"You bet {bet:,}. Result is {'|'.join(result)}."

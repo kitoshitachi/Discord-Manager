@@ -5,8 +5,11 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context, Cog
-from discord.ext.commands import CommandOnCooldown, MissingPermissions, BotMissingPermissions, CommandNotFound
-
+from discord.ext.commands import (
+	CommandOnCooldown, 
+	MissingPermissions, BotMissingPermissions, 
+	CommandNotFound
+)
 #Local Application/Library Specific
 from logger import Logger
 from settings import CONFIG

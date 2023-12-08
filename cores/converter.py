@@ -2,7 +2,7 @@
 from discord.ext.commands import ( 
     Context, 
     Converter, FlagConverter, 
-    BadArgument, BadArgument
+    BadArgument
 )
 
 class StatDisplayMode(FlagConverter):

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 
 # Third-party imports
-from discord.ext import commands
+from discord.ext.commands import Converter, Context, BadArgument
 
 # Local application/library specific imports
 from cores.utils import random_stat
@@ -15,7 +15,7 @@ from settings import CONFIG
 
 @dataclass_json
 @dataclass(slots=True)
-class Stat(commands.Converter):
+class Stat(Converter):
     HP: float = field(default=0.0, init=True)
     MP: float = field(default=0.0, init=True)
     STR: float = field(default=0.0, init=True)
@@ -23,12 +23,12 @@ class Stat(commands.Converter):
     PR: float = field(default=0.0, init=True)
     CR: float = field(default=0.0, init=True)
 
-    async def convert(self, ctx: commands.Context, argument: str) -> Stat:
+    async def convert(self, ctx: Context, argument: str) -> Stat:
         argument = argument.upper()
         if argument in self.__annotations__.keys():
             return argument
         else:
-            raise commands.BadArgument(
+            raise BadArgument(
                 "Invalid display_stat name! Options are: HP, MP, STR, AGI, PR, CR.")
 
     def __add__(self, other):
@@ -80,12 +80,12 @@ class Infor():
 
     def add_cash(self, amount: int):
         if amount < 0:
-            raise ValueError("Amount must be a positive integer")
+            raise BadArgument("Amount must be a positive integer")
         self.cash += amount
 
     def decrease_spirit(self, amount: int):
         if amount < 0:
-            raise ValueError("Amount must be a positive integer")
+            raise BadArgument("Amount must be a positive integer")
         self.spirit -= amount
         if self.spirit < 0:
             self.spirit = 0
@@ -95,18 +95,18 @@ class Infor():
 
     def add_xp(self, amount: int):
         if amount < 0:
-            raise ValueError("Amount must be a positive integer")
+            raise BadArgument("Amount must be a positive integer")
         self.xp += amount
         self.level_up()
 
     def add_spirit(self, amount: int):
         if amount < 0:
-            raise ValueError("Amount must be a positive integer")
+            raise BadArgument("Amount must be a positive integer")
         self.spirit += amount
 
     def decrease_cash(self, amount: int):
         if amount < 0:
-            raise ValueError("Amount must be a positive integer")
+            raise BadArgument("Amount must be a positive integer")
         self.cash -= amount
         if self.cash < 0:
             self.cash = 0
@@ -116,7 +116,7 @@ class Infor():
         return True if level up
         '''
         if xp < 0 or cash < 0:
-            raise ValueError("Values must be positive integers")
+            raise BadArgument("Values must be positive integers")
 
         old_level = self.level
         self.xp += xp
@@ -185,7 +185,7 @@ class Character(BaseCharacter):
             spirit = self.infor.spirit
 
         if spirit > self.infor.spirit:
-            raise ValueError("You don't have enough spirits!")
+            raise BadArgument("You don't have enough spirits!")
 
         setattr(self.bonus_stat, display_stat.upper(),
                 spirit + getattr(self.bonus_stat, display_stat.upper()))
