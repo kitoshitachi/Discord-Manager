@@ -1,19 +1,15 @@
 
 # STANDARD MODULES
 import os, platform
-from typing import Any, Callable
 
 # THIRD PARTY MODULES
 from discord import Message, Intents, __version__
 from discord.ext import commands
-from discord.ext.commands.cog import Cog
-from discord.ext.commands.core import Command
 
 # LOCAL MODULES
 from logger import Logger
 from settings import CONFIG, PREFIX_BOT
 from cores.helpcommand import CustomHelpCommand
-
 
 intents = Intents.default()
 intents.members = True
@@ -68,16 +64,15 @@ class DiscordBot(commands.Bot):
 
 		:param message: The message that was sent.
 		"""
+
 		if message.author == self.user or message.author.bot:
 			return
 		
-		await self.process_commands(message)
+		bad_prefix = PREFIX_BOT + ' '
 
-	def get_command(self, name: str) -> Command[None, Callable[..., Any], Any] | None:
+		user_input = message.content.strip().lower()
+		if user_input.startswith(bad_prefix):
+			user_input = user_input.replace(bad_prefix, PREFIX_BOT, 1)
+		message.content = user_input
 		
-		return super().get_command(name.lower())
-	
-	def get_cog(self, name: str) -> Cog | None:
-		name = name.lower()
-		
-		return super().get_cog(name)
+		await self.process_commands(message)
