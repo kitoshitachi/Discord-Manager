@@ -26,7 +26,16 @@ class Slot:
         '''   
         return Slot.slot(), Slot.slot(), Slot.slot()
 
-
+    staticmethod
+    def help() -> str:
+        return f"\n:smile: x1 \
+    \n:ghost: x2 \
+    \n:zombie: x4 \
+    \n:imp: x8 \
+    \n:angel: x16 \
+    \n:vampire: x32 \
+    \n{CONFIG['CASH_EMOJI']} x100 \
+    \nWith three identical items you will multiply the bet, otherwise you will lose the bet if it is different."
 
 class CoinFlip:
 

@@ -71,7 +71,7 @@ class PositiveInteger(Converter):
             if argument.lower() == "all":
                 return self.all
             number = int(argument)
-            if number < 0:
+            if number <= 0:
                 raise BadArgument(f"{argument} must be a positive integer.")
             return number
         except ValueError:

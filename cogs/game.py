@@ -301,7 +301,7 @@ class Game(commands.Cog, name="game"):
 
 
     @commands.hybrid_command(name="slot",
-                            description="slot game",
+                            description=f"slot game. {Slot.help()}",
                             aliases=['s']
     )
     # @commands.group(name='Gambling')
