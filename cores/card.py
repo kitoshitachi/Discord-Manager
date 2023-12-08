@@ -23,7 +23,7 @@ class _BaseCard:
     progress_height = 40
 
     remaining_progress = 0.5
-    red_color = (255, 0, 0)
+    red_color = (255, 214, 218)
 
     stat_x = 120
     stat_y = 345
