@@ -3,5 +3,5 @@
 create file **.env**:
 
     - DISCORD_TOKEN = {here your discord token}
-    - LOGS_CHANNEL = {here your log channel}
-    - SPECIAL_ROLE = {here your special role}
+    - SUPABASE_URL = {here your supabase url}
+    - SUPABASE_KEY = {here your supabase key}
