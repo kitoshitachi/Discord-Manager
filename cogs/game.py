@@ -216,7 +216,8 @@ class Game(commands.Cog, name="game"):
 
         other_player_data = self.supabase.select(other_id, 'character')
         if other_player_data is None:
-            await context.channel.send("User not found.")
+            # await context.channel.send("User not found.")
+            raise ValueError("User not found.")
             return
         
         author_data = self.supabase.select(author_id, 'character')

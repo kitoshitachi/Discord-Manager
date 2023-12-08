@@ -73,8 +73,7 @@ class Card(_BaseCard):
         if mode == 'display_stat':
             max_len = len(str(current_stat.HP))
         else:
-            max_len = 4
-            current_stat = current_stat.round()
+            max_len = 5
 
 
         if avatar is None:
@@ -98,7 +97,7 @@ class Card(_BaseCard):
 
         for column, list_stat in enumerate(stat_fields):
             for row, stat in enumerate(list_stat):
-                draw_text.text(Card.get_offset_stat(column, row), f"{stat:0>{max_len}}", font=Card.title_font, fill=Card.red_color)
+                draw_text.text(Card.get_offset_stat(column, row), f"{stat:0>{max_len}.2f}", font=Card.title_font, fill=Card.red_color)
 
 
         full_card.paste(card)

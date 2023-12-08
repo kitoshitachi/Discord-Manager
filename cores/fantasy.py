@@ -38,7 +38,7 @@ class Stat(commands.Converter):
                         STR=self.STR + other.STR,
                         AGI=self.AGI + other.AGI,
                         PR=self.PR + other.PR,
-                        CR=self.CR + other.CR).round()
+                        CR=self.CR + other.CR)
         else:
             raise TypeError(
                 "unsupported operand type(s) for +: 'Stat' and 'str'")
@@ -49,21 +49,7 @@ class Stat(commands.Converter):
             \nHP : {self.HP:0>{max_len}} MP : {self.MP:0>{max_len}}\n\
             \nSTR: {self.STR:0>{max_len}} AGI: {self.AGI:0>{max_len}}\n\
             \nPR : {self.PR:0>{max_len}} CR : {self.CR:0>{max_len}}\n"
-    
-    
-    def round(self) -> Stat:
-        '''
-        Round all stats to a specific number of decimal places.
-        '''
-        # temp = 10 ** number
-        return Stat(
-            HP=round(self.HP, 4),
-            MP=round(self.MP, 4),
-            STR=round(self.STR, 4),
-            AGI=round(self.AGI, 4),
-            PR=round(self.PR, 4),
-            CR=round(self.CR, 4)
-        )
+
 
 @dataclass_json
 @dataclass(slots=True)
@@ -160,18 +146,9 @@ class FantasyWorld:
 @dataclass_json
 @dataclass(slots=True)
 class BaseCharacter:
-    _base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
-    _bonus_stat: Stat = field(default_factory=Stat)
+    base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
+    bonus_stat: Stat = field(default_factory=Stat)
     infor: Infor = field(default_factory=Infor)
-
-
-    @property
-    def base_stat(self) -> Stat:
-        return self._base_stat.round()
-
-    @property
-    def bonus_stat(self) -> Stat:
-        return self._bonus_stat.round()
 
 
     @property
