@@ -224,12 +224,13 @@ class Game(commands.Cog, name="game"):
         other_player: Character = Character.from_json(other_player_data['character'])
         author_player: Character = Character.from_json(author_data['character'])
 
+        author_cash = author_player.infor.cash
+
         if cash == 'all':
             cash = author_player.infor.cash
 
-        if author_player.infor.cash < cash:
-            await context.channel.send(f"{self.config['CASH_EMOJI']} | You don't have enough cash.")
-            return
+        if author_cash < cash or author_cash == 0:
+            raise ValueError(f"{self.config['CASH_EMOJI']} | You have no money.")
         
         other_player.infor.add_cash(cash)
         author_player.infor.decrease_cash(cash)
@@ -281,11 +282,15 @@ class Game(commands.Cog, name="game"):
         character: Character = Character.from_json(data['character'])
 
         current_cash = character.infor.cash
+       
+        if current_cash == 0:
+            raise ValueError(f"{self.config['CASH_EMOJI']} | You have no money.")
 
         if bet > current_cash:
             bet = current_cash
 
-        result = CoinFlip.play(choice)
+
+        result = CoinFlip.play()
         message = f"You bet {bet:,} on the {choice} of coin. Result is {result}."
         if result == choice:
             character.infor.add_cash(bet)
@@ -319,6 +324,9 @@ class Game(commands.Cog, name="game"):
 
         if bet > current_cash:
             bet = current_cash
+
+        if bet == 0:
+            raise ValueError(f"{self.config['CASH_EMOJI']} | You have no money.")
 
         result = Slot.play()
         message = f"You bet {bet:,}. Result is {'|'.join(result)}."

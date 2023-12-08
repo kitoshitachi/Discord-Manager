@@ -160,9 +160,19 @@ class FantasyWorld:
 @dataclass_json
 @dataclass(slots=True)
 class BaseCharacter:
-    base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
-    bonus_stat: Stat = field(default_factory=Stat)
+    _base_stat: Stat = field(default_factory= lambda: Stat(*random_stat(6, 6)))
+    _bonus_stat: Stat = field(default_factory=Stat)
     infor: Infor = field(default_factory=Infor)
+
+
+    @property
+    def base_stat(self) -> Stat:
+        return self._base_stat.round()
+
+    @property
+    def bonus_stat(self) -> Stat:
+        return self._bonus_stat.round()
+
 
     @property
     def total_stat(self) -> Stat:
@@ -198,7 +208,7 @@ class Character(BaseCharacter):
             spirit = self.infor.spirit
 
         if spirit > self.infor.spirit:
-            return "You don't have enough spirits!"
+            raise ValueError("You don't have enough spirits!")
 
         setattr(self.bonus_stat, display_stat.upper(),
                 spirit + getattr(self.bonus_stat, display_stat.upper()))
