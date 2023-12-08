@@ -5,7 +5,7 @@ Define param
 from discord.ext.commands import parameter
 
 from cores.fantasy import Stat
-from cores.converter import StatDisplayMode, PositiveInteger, KeyToIndex
+from cores.converter import StatDisplayMode, PositiveInteger, KeyAlias
 
 stat = parameter(
     converter=Stat, 
@@ -55,12 +55,9 @@ nickname = parameter(
 
 choice = parameter(
     default='head',
-    converter=KeyToIndex
+    converter=KeyAlias
     (
-        [
-            ['head','h'],
-            ['tail','t']    
-        ]    
-    ),
+        name='choice',
+        data=(('head','h'), ('tail','t'))),
     description="choose face of coin"
 )

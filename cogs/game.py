@@ -267,14 +267,15 @@ class Game(commands.Cog, name="game"):
                             aliases=['cf']
     )
     # @commands.group(name='Gambling')
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @ensure_user_exists
     async def coinflip(self, 
                        context:Context, 
                        bet = parameter.bet, 
                        choice: Optional[str] = parameter.choice):
         
-        user_id = context.author.id
+        user = context.author
+        user_id = user.id
 
         data = self.supabase.select(user_id, 'character')
         character: Character = Character.from_json(data['character'])
@@ -284,19 +285,56 @@ class Game(commands.Cog, name="game"):
         if bet > current_cash:
             bet = current_cash
 
-        win = CoinFlip.play(choice)
-        if win:
+        result = CoinFlip.play(choice)
+        message = f"You bet {bet:,} on the {choice} of coin. Result is {result}."
+        if result == choice:
             character.infor.add_cash(bet)
-            await context.channel.send(content=f"You win {bet:,}. Ur cash is {character.infor.cash:,}")
+            await context.channel.send(content=message + f"\nYou win {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
 
         else:
             character.infor.decrease_cash(bet)
-            await context.channel.send(content=f"You lose {bet:,}. Ur cash is {character.infor.cash:,}")
+            await context.channel.send(content=message +f"\nYou lose {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
 
         data['character'] = character.to_json()
 
         self.supabase.update(user_id, data)
 
+
+    @commands.hybrid_command(name="slot",
+                            description="slot game",
+                            aliases=['s']
+    )
+    # @commands.group(name='Gambling')
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @ensure_user_exists
+    async def slot(self, context:Context, bet = parameter.bet):
+        
+        user = context.author
+        user_id = user.id
+
+        data = self.supabase.select(user_id, 'character')
+        character: Character = Character.from_json(data['character'])
+
+        current_cash = character.infor.cash
+
+        if bet > current_cash:
+            bet = current_cash
+
+        result = Slot.play()
+        message = f"You bet {bet:,}. Result is {'|'.join(result)}."
+        win = len(set(result)) == 1
+        
+        if win:
+            character.infor.add_cash(bet * Slot.items[result[0]])
+            await context.channel.send(content=message + f"\nYou win {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
+
+        else:
+            character.infor.decrease_cash(bet)
+            await context.channel.send(content=message + f"\nYou lose {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
+
+        data['character'] = character.to_json()
+
+        self.supabase.update(user_id, data)
     
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.

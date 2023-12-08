@@ -78,16 +78,27 @@ class PositiveInteger(Converter):
             raise BadArgument(f"{argument} invalid. Must be a positive integer.")
 
 
-class KeyToIndex(Converter):
+class KeyAlias(Converter):
+    '''
+    convert the flag to full content name
+    Data schema  = (tuple of 1st key alias, tuple of 2nd key alias,...)
 
-    def __init__(self, data:list) -> None:
+    return first item of tuple as full content    
+    '''
+
+    def __init__(self, name, data:list) -> None:
         super().__init__()
+        self.name = name
         self.list_of_keys = data
+
+    @property
+    def list_option(self):
+        return ", ".join([option for key_alias in self.list_of_keys for option in key_alias])
 
     async def convert(self, ctx: Context, argument: str):
 
-        for index, key_alias in enumerate(self.list_of_keys):
+        for key_alias in self.list_of_keys:
             if argument in key_alias:
-                return index
+                return key_alias[0]
         
-        raise KeyError
+        raise KeyError(f"{argument} is invalid. Optional {self.name}: {self.list_option}")

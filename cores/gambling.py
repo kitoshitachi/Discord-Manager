@@ -1,46 +1,39 @@
 from dataclasses import dataclass
-from random import randint, choice
-
+from random import choice
+from typing import Literal
+from settings import CONFIG
 @dataclass(repr=False, eq=False)
 class Slot:
     items = {
-        'human'  : 1, 
-        'ghost'  : 2, 
-        'zombie' : 4, 
-        'evil'   : 8, 
-        'angel'  : 16, 
-        'vampire': 32, 
-        'hunter' : 100
+        ':smile:'  : 1, 
+        ':ghost:'  : 2, 
+        ':zombie:' : 4, 
+        ':imp:'   : 8, 
+        ':angel:'  : 16, 
+        ':vampire:': 32, 
+        CONFIG['CASH_EMOJI'] : 100
     }
     # __chance = [20, 20, 20, 20, 10, 5, 5]
 
-    @classmethod
-    def slot(cls):
-        # return choices(list(cls.__items.keys()), cls.__chance)[0]
-        return choice(list(cls.__items.keys()))
+    @staticmethod
+    def slot():
+        return choice(list(Slot.items.keys()))
 
-    @classmethod
-    def play(cls):
+    @staticmethod
+    def play():
         '''
-        return multiple bet
-        '''
-        result = cls.slot(), Slot.slot(), Slot.slot()
-        win = len(set(result))
-        
-        if win == 1:
-            return Slot.__items[result[0]], *result
-        
-        return -1, *result
+        return three slot 
+        '''   
+        return Slot.slot(), Slot.slot(), Slot.slot()
 
 
 
 class CoinFlip:
 
     @staticmethod
-    def play(choice):
+    def play() -> Literal['head','tail']:
         '''
-        if win coin flip, return true
+        return face of coin
         '''
-        result = randint(0,1)
-        return choice == result
+        return choice('head','tail')
     
