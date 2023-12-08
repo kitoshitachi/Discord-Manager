@@ -207,7 +207,7 @@ class Game(commands.Cog, name="game"):
         """
         
         if other == context.author:
-            await context.channel.send("You give cash to yourself.")
+            await context.channel.send(f"{self.config['CASH_EMOJI']} | You give cash to yourself.")
             return
 
 
@@ -228,7 +228,7 @@ class Game(commands.Cog, name="game"):
             cash = author_player.infor.cash
 
         if author_player.infor.cash < cash:
-            await context.channel.send("You don't have enough cash.")
+            await context.channel.send(f"{self.config['CASH_EMOJI']} | You don't have enough cash.")
             return
         
         other_player.infor.add_cash(cash)
@@ -240,7 +240,7 @@ class Game(commands.Cog, name="game"):
         self.supabase.update(other_id, other_player_data)
         self.supabase.update(author_id, author_data)
 
-        await context.channel.send(f"You give {cash:,} cash to {other.mention}.")
+        await context.channel.send(f"{self.config['CASH_EMOJI']} | You give {cash:,} cash to {other.mention}.")
 
     @commands.hybrid_command(name="limit",
                             description="Show limit train and xp",
@@ -254,7 +254,7 @@ class Game(commands.Cog, name="game"):
         user = context.author
         data = self.supabase.select(user.id, 'status, limit_xp')
         
-        embed = Embed(title="Today's Limit")
+        embed = Embed(title="<:game:1181633887978389524> Today's Limit")
         embed.add_field(name='Train', value=f'{data["status"]} times to increase stat', inline=False)
         embed.add_field(name='Exp', value=f'{data["limit_xp"]} XP remaining', inline=False)
         embed.set_footer(text='Powered by Vampire')
