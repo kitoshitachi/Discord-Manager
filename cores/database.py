@@ -1,6 +1,6 @@
 from typing import Union
 from supabase import create_client, Client
-from settings import SUPABASE_URL, SUPABASE_KEY
+from settings import SUPABASE_URL, SUPABASE_KEY, CONFIG
 
 class Database:
     '''
@@ -25,13 +25,13 @@ class Database:
     def reset_limit(self):
 
         self.__supabase.from_('Member') \
-            .update({'limit_xp':3000, 'status' : 1000}) \
-            .lt('limit_xp', 3000) \
+            .update({'limit_xp':CONFIG['LIMIT_XP'], 'status' : CONFIG['STATUS']}) \
+            .lt('limit_xp', CONFIG['LIMIT_XP']) \
             .execute()
         
         self.__supabase.from_('Member') \
-            .update({'status' : 1000}) \
-            .lt('status', 1000) \
+            .update({'status' : CONFIG['STATUS']}) \
+            .lt('status', CONFIG['STATUS']) \
             .execute()
     
 
