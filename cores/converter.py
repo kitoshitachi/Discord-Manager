@@ -1,11 +1,9 @@
 
 from discord.ext.commands import ( 
-    Context, 
-    Converter, FlagConverter, 
-    BadArgument
+    Context, Converter, BadArgument
 )
 
-class StatDisplayMode(FlagConverter):
+class StatDisplayMode(Converter):
     def __init__(self) -> None:
         super().__init__()
 
@@ -93,7 +91,7 @@ class KeyAlias(Converter):
 
     @property
     def list_option(self):
-        return ", ".join([option for key_alias in self.list_of_keys for option in key_alias])
+        return ", ".join([" = ".join(key_alias) for key_alias in self.list_of_keys])
 
     async def convert(self, ctx: Context, argument: str):
 
@@ -101,4 +99,4 @@ class KeyAlias(Converter):
             if argument in key_alias:
                 return key_alias[0]
         
-        raise KeyError(f"{argument} is invalid. Optional {self.name}: {self.list_option}")
+        raise BadArgument(f"{argument} is invalid. Optional {self.name}: {self.list_option}")

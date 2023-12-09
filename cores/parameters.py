@@ -6,6 +6,7 @@ from discord.ext.commands import parameter
 
 from cores.fantasy import Stat
 from cores.converter import StatDisplayMode, PositiveInteger, KeyAlias
+from settings import CONFIG
 
 stat = parameter(
     converter=Stat, 
@@ -44,7 +45,7 @@ bet = parameter(
     default=1,
     converter=PositiveInteger(all=250000),
     description='The amount of cash to bet. \
-    \nMax is 250000 per command\
+    \nMax is 250,000 per command\
     \nDefault is 1'
 )
 
@@ -54,10 +55,10 @@ nickname = parameter(
 )
 
 choice = parameter(
-    default='head',
+    default=CONFIG['HEAD_COIN_EMOJI'],
     converter=KeyAlias
     (
         name='choice',
-        data=(('head','h'), ('tail','t'))),
+        data=((CONFIG['HEAD_COIN_EMOJI'],'head','h'), (CONFIG['TAIL_COIN_EMOJI'],'tail','t'))),
     description="choose face of coin"
 )

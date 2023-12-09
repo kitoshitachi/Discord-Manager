@@ -1,4 +1,6 @@
 # standard library imports
+from asyncio import sleep
+import asyncio
 import functools
 from datetime import datetime
 from typing import Optional
@@ -130,7 +132,8 @@ class Game(commands.Cog, name="game"):
         player: Character = Character.from_json(data['character'])
 
         name=user.display_name
-        avatar = await user.avatar.read()
+        avatar = user.guild_avatar or user.avatar or user.default_avatar
+        avatar = await avatar.read()
         image = self.card.image(name, player, mode, avatar)
 
         with BytesIO() as binary_image:
@@ -264,19 +267,22 @@ class Game(commands.Cog, name="game"):
         await context.channel.send(embed=embed)
 
     @commands.hybrid_command(name="coinflip",
-                            description="coinflip game",
+                            description=CoinFlip.help(),
                             aliases=['cf']
     )
     # @commands.group(name='Gambling')
     @commands.cooldown(1, 5, commands.BucketType.user)
     @ensure_user_exists
-    async def coinflip(self, 
-                       context:Context, 
-                       bet = parameter.bet, 
-                       choice: Optional[str] = parameter.choice):
+    async def coinflip(
+        self, 
+        context:Context, 
+        bet = parameter.bet, 
+        choice: Optional[str] = parameter.choice
+    ):
         
         user = context.author
         user_id = user.id
+        channel = context.channel
 
         data = self.supabase.select(user_id, 'character')
         character: Character = Character.from_json(data['character'])
@@ -289,24 +295,29 @@ class Game(commands.Cog, name="game"):
         if bet > current_cash:
             bet = current_cash
 
+        content = f"`BET` {bet} {self.config['CASH_EMOJI']}\n`CHOICE` {choice}\n`RESULT` "
 
+        message = await channel.send(content + self.config['COIN_SPINS_EMOJI'])
         result = CoinFlip.play()
-        message = f"You bet {bet:,} on the {choice} of coin. Result is {result}."
         if result == choice:
             character.infor.add_cash(bet)
-            await context.channel.send(content=message + f"\nYou win {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
-
+            content += f"||{result}||\n{user.mention} ||win {bet:,}|| {self.config['CASH_EMOJI']}."
         else:
             character.infor.decrease_cash(bet)
-            await context.channel.send(content=message +f"\nYou lose {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
+            content += f"||{result}||\n{user.mention} ||lose {bet:,}|| {self.config['CASH_EMOJI']}."
+
 
         data['character'] = character.to_json()
 
         self.supabase.update(user_id, data)
 
+        await asyncio.sleep(3)
+        await message.edit(
+            content = f"{content} Ur cash is ||{character.infor.cash:,}|| {self.config['CASH_EMOJI']}"
+        )
 
     @commands.hybrid_command(name="slot",
-                            description=f"slot game. {Slot.help()}",
+                            description=Slot.help(),
                             aliases=['s']
     )
     # @commands.group(name='Gambling')

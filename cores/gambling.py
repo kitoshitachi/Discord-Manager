@@ -28,17 +28,25 @@ class Slot:
 
     staticmethod
     def help() -> str:
-        description = "\n".join(f"{key} x{value}" for key, value in Slot.items.items()) \
-              + "\nWith three identical items you will multiply the bet,\
-                  otherwise you will lose the bet if it is different."
-        return description
+        available_option = "\n".join(f"{key} x{value}" for key, value in Slot.items.items())
+
+        description = "Slot Game\nWith three identical items you will multiply the bet, \
+                \notherwise you will lose the bet if it is different."
+        return description + "\nList reward:\n" + available_option
 
 class CoinFlip:
+
+    Options = (CONFIG['HEAD_COIN_EMOJI'], CONFIG['TAIL_COIN_EMOJI'])
 
     @staticmethod
     def play() -> Literal['head','tail']:
         '''
         return face of coin
         '''
-        return choice('head','tail')
+        return choice(CoinFlip.Options)
     
+    @staticmethod
+    def help() -> str:
+        available_option = " | ".join(face for face in CoinFlip.Options)
+        description = f"{CONFIG['COIN_SPINS_EMOJI']} Coin Flip Game. Choose the face to bet, u will win if you guess right"
+        return description + "\nOption is " + available_option
