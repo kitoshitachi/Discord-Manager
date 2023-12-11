@@ -197,14 +197,16 @@ class Game(commands.Cog, name="game"):
     # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
-    async def give(self, context: Context, 
-                   other: Optional[Member], 
-                   cash: Optional[str] = parameter.cash) -> None:
+    async def give(
+        self, context: Context, 
+        other: Optional[Member], 
+        cash: Optional[str] = parameter.cash
+    ) -> None:
         """
         The give command. It allows the user to give cash to another user.
 
         :param context: The application command context.
-        :param user: The user to give cash to.
+        :param other: The user to give cash to.
         :param cash: The amount of cash to give.
         :return: None
         """

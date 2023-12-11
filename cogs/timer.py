@@ -9,7 +9,7 @@ class Timer(commands.Cog, name="timer"):
     """
     A cog that represents a timer. It contains all the timer commands.
     """
-    def __init__(self, bot: Client):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.database = Database()
         self.status_task.start()

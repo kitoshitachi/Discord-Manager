@@ -1,6 +1,4 @@
 #standard library imports
-import re
-from typing import Optional
 
 # Third-party imports
 from discord import Member, utils
@@ -12,9 +10,8 @@ from discord.ext.commands import (
 
 # Local application/library specific imports
 import cores.parameters as parameter
+from cores.utils import clean_name, deEmojify
 from settings import CONFIG
-
-_extract_username = re.compile(r"[._ ]+").sub # regex to extract username
 
 class Moderator(Cog, name="moderator"):
 	"""
@@ -24,6 +21,7 @@ class Moderator(Cog, name="moderator"):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = CONFIG
+		self.special_role = None
 
 	# Here you can just add your own commands, you'll always need to provide "self" as first parameter.
 	@commands.hybrid_command(name="clear",
@@ -53,7 +51,7 @@ class Moderator(Cog, name="moderator"):
 		description="Change the nickname of a user on a server.",
 	)
 	@bot_has_permissions(manage_nicknames=True)
-	async def nick(self, ctx: Context, member: Optional[Member] = None, *, nickname: Optional[str] = parameter.nickname):
+	async def nick(self, ctx: Context, member: Member = None, *, nickname: str = parameter.nickname):
 		"""
 		Change the nickname of a user on a server.
 		
@@ -71,9 +69,9 @@ class Moderator(Cog, name="moderator"):
 			member = ctx.author
 		
 		if nickname == None:
-			nickname = member.global_name or _extract_username(member.name,'')
+			nickname = member.global_name or clean_name(member.name)
 		
-		special_role = utils.get(ctx.guild.roles, id=int(self.config['SPECIAL_ROLE']))
+		special_role = utils.get(ctx.guild.roles, id=self.config['SPECIAL_ROLE'])
 		
 		if member.top_role.position > special_role.position:
 			nickname += ' ' + member.top_role.name.split(' ')[-1]
@@ -84,25 +82,30 @@ class Moderator(Cog, name="moderator"):
 
 	@Cog.listener()
 	async def on_member_update(self, before: Member, after: Member) -> None:
-		special_role = utils.get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
+		
+		if self.special_role == None:
+			self.special_role = utils.get(after.guild.roles, id=int(self.config['SPECIAL_ROLE']))
+		
 
 		if before.top_role.name != after.top_role.name:
+
 			display_name = after.display_name
+			top_role_emoji = after.top_role.name.split(' ')[-1]
+			display_name = deEmojify(display_name)
 
-			if after.top_role.position > special_role.position:
-				display_name_parts = [display_name]
-				top_role_name_parts = after.top_role.name.split(' ')
-				if len(top_role_name_parts) > 1:
-					display_name_parts.append(top_role_name_parts[-1])
-				display_name = ' '.join(display_name_parts)
+			if after.top_role.position >= self.special_role.position:
+				display_name += ' ' + top_role_emoji
 
-			elif after.top_role.position < special_role.position and before.top_role.position > special_role.position:
-				display_name_parts = display_name.split(' ')
-				if len(display_name_parts) > 1:
-					display_name = ' '.join(display_name_parts[:-1])
+			
+			await after.edit(nick=clean_name(display_name))
 
-			await after.edit(nick=display_name)
-
+	# @commands.hybrid_command(
+	# 	name="give away",
+	# 	description="create a give away",
+	# )
+	# @bot_has_permissions(manage_nicknames=True)
+	# async def give_away(self, ctx: Context, time, win, *, content:str == None):
+	# 	pass
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 
 

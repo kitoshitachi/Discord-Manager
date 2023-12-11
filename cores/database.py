@@ -3,9 +3,7 @@ from supabase import create_client, Client
 from settings import SUPABASE_URL, SUPABASE_KEY, CONFIG
 
 class Database:
-    '''
-    
-    '''
+
     def __init__(self) -> None:
         self.__supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     
