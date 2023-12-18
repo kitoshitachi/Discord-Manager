@@ -5,7 +5,7 @@ from datetime import datetime
 from random import choices
 
 
-from discord import Embed, utils
+from discord import Embed
 from discord.ext.commands import Context, Cog, Bot, hybrid_command, guild_only, has_role, bot_has_permissions
 
 from cores.errors import ChannelError

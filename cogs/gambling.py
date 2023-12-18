@@ -75,6 +75,10 @@ class Gambling(commands.Cog, name="Gambling"):
 
         return wrapper
 
+    @commands.hybrid_command(name="coin flip",
+                            description=CoinFlip.help(),
+                            aliases=['cf']
+    )
     @commands.cooldown(1, 5, commands.BucketType.user)
     @ensure_user_exists
     async def coinflip(
