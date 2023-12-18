@@ -4,8 +4,8 @@
 from discord import Member, utils
 from discord.ext import commands
 from discord.ext.commands import (
-  Context, Cog,  # Context and Cog are required for the bot to work.
-  has_permissions, bot_has_permissions,  # Check if the bot has the required permissions.
+  Context, Cog, 
+  has_permissions, bot_has_permissions
 )
 
 # Local application/library specific imports
@@ -51,7 +51,7 @@ class Moderator(Cog, name="moderator"):
 		description="Change the nickname of a user on a server.",
 	)
 	@bot_has_permissions(manage_nicknames=True)
-	async def nick(self, ctx: Context, member: Member = None, *, nickname: str = parameter.nickname):
+	async def nick(self, ctx: Context, member:Member, *, nickname = parameter.nickname):
 		"""
 		Change the nickname of a user on a server.
 		
@@ -99,15 +99,7 @@ class Moderator(Cog, name="moderator"):
 			
 			await after.edit(nick=clean_name(display_name))
 
-	# @commands.hybrid_command(
-	# 	name="give away",
-	# 	description="create a give away",
-	# )
-	# @bot_has_permissions(manage_nicknames=True)
-	# async def give_away(self, ctx: Context, time, win, *, content:str == None):
-	# 	pass
+	
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
-
-
 async def setup(bot: commands.Bot):
 	await bot.add_cog(Moderator(bot))

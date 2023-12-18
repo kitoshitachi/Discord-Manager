@@ -1,8 +1,8 @@
 
-
+#Standard Library
+from datetime import datetime, timedelta
 
 #Third Party Library
-from datetime import time
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context, Cog
@@ -11,7 +11,6 @@ from discord.ext.commands import (
 	MissingPermissions, BotMissingPermissions, 
 	CommandNotFound
 )
-from cores.utils import remaining_time
 #Local Application/Library Specific
 from logger import Logger
 from settings import CONFIG
@@ -42,7 +41,7 @@ class Handler(commands.Cog, name="handler"):
 			days, hours = divmod(hours, 24)
 			print(days, hours)
 			await context.channel.send(
-				content=f"**Please slow down** - You can use this command again in {remaining_time(days, hours, minutes, seconds)}.",
+				content=f"**Please slow down** - You can use this command again in {datetime.now() - timedelta(days, hours, minutes, seconds)}.",
 				delete_after=10)
 			
 		elif isinstance(error, MissingPermissions):
@@ -77,8 +76,10 @@ class Handler(commands.Cog, name="handler"):
 		full_command_name = context.command.qualified_name
 		split = full_command_name.split(" ")
 		executed_command = str(split[0])
-		if executed_command != 'clear':
+		try:
 			await context.message.add_reaction(self.config['SUCCESS_EMOJI'])
+		except discord.errors.NotFound:
+			pass
 		content = f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
 		self.logger.info(content)
 

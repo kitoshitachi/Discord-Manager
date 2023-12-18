@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import re
 
 from discord.ext.commands import ( 
     Context, Converter, BadArgument
@@ -46,7 +48,7 @@ class PositiveInteger(Converter):
         super().__init__()
         self.all = all or 'all'
 
-    async def convert(self, ctx: Context, argument: str):
+    async def convert(self, ctx: Context, argument: str) -> int:
         '''
         Converts to a positive integer.
         
@@ -100,3 +102,37 @@ class KeyAlias(Converter):
                 return key_alias[0]
         
         raise BadArgument(f"{argument} is invalid. Optional {self.name}: {self.list_option}")
+
+class TimeConverter(Converter):
+
+    def __init__(self,min_second:int = 15, max_second:int = 24 * 60 * 60) -> None:
+        super().__init__()
+        self.max_second = max_second
+        self.min_second = min_second
+
+
+    async def convert(self, ctx: Context, argument):
+        time_dict = self.extract_time_values(argument)
+        time_delta = self.to_timedelta(*time_dict.values())
+        total_seconds = time_delta.total_seconds()
+
+        if total_seconds > self.max_second or total_seconds < self.min_second:
+            raise BadArgument(f"{argument} is invalid. time in range [{self.min_second},{self.max_second}] seconds")
+
+        return datetime.now() + time_delta
+
+    @staticmethod
+    def to_timedelta(days:int, hours:int, minutes:int, seconds:int):
+        return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+
+    @staticmethod
+    def extract_time_values(input_string:str):
+        time_dict = {'d': 0, 'h':0, 'm':0, 's':0}
+        items = re.finditer(r'(\d+(\.\d+)?)([smhd])', input_string.lower())
+        
+        for match in items:
+            value = float(match.group(1))
+            unit = match.group(3)
+            time_dict[unit] = value
+
+        return time_dict

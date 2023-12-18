@@ -199,7 +199,7 @@ class Game(commands.Cog, name="game"):
     @ensure_user_exists
     async def give(
         self, context: Context, 
-        other: Optional[Member], 
+        other:Member, 
         cash: Optional[str] = parameter.cash
     ) -> None:
         """

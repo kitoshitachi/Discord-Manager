@@ -1,11 +1,12 @@
 """
 Define param
 """
+from datetime import datetime
 
 from discord.ext.commands import parameter
 
 from cores.fantasy import Stat
-from cores.converter import StatDisplayMode, PositiveInteger, KeyAlias
+from cores.converter import StatDisplayMode, PositiveInteger, KeyAlias, TimeConverter
 from settings import CONFIG
 
 stat = parameter(
@@ -49,9 +50,15 @@ bet = parameter(
     \nDefault is 1'
 )
 
-nickname = parameter(
+winner:int = parameter(
+    converter=PositiveInteger(all=10),
+    description="The amount of winner. \
+    \nMax is 10\nMin is 1"
+)
+
+nickname:str = parameter(
     default=None,
-    description="The new nickname."
+    description="The new nickname. If you dont write the name, then set ur name to guild name or clean username"
 )
 
 choice = parameter(
@@ -61,4 +68,17 @@ choice = parameter(
         name='choice',
         data=((CONFIG['HEAD_COIN_EMOJI'],'head','h'), (CONFIG['TAIL_COIN_EMOJI'],'tail','t'))),
     description="choose face of coin"
+)
+
+time:datetime = parameter(
+    converter=TimeConverter,
+    description="Set time end give away. \
+        \nMax is 1 day \
+        \nMin is 15 seconds \
+        \nFormat: **nd nh nm ns** with n is number \
+        \nExample: 15s, 1d1h, ..."
+)
+
+prize:str = parameter(
+    description="The prize of give away."
 )

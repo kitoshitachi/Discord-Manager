@@ -1,7 +1,7 @@
 
 
 # Standard Library
-from typing import List
+from typing import List, Optional
 
 # Third Party Library
 import discord
@@ -43,3 +43,4 @@ class PaginationView(View):
         else:
             self.page = 0
         await interaction.response.edit_message(embed=self.pages[self.page])
+
