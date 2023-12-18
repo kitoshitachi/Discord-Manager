@@ -41,7 +41,7 @@ class Handler(commands.Cog, name="handler"):
 			days, hours = divmod(hours, 24)
 			print(days, hours)
 			await context.channel.send(
-				content=f"**Please slow down** - You can use this command again in {datetime.now() - timedelta(days, hours, minutes, seconds)}.",
+				content=f"**Please slow down** - You can use this command again in <t:{(datetime.now() - timedelta(days, hours, minutes, seconds)).timestamp()}:R>.",
 				delete_after=10)
 			
 		elif isinstance(error, MissingPermissions):
