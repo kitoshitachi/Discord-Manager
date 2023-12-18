@@ -3,9 +3,12 @@
 import asyncio
 from datetime import datetime
 from random import choices
-from discord import Embed
+
+
+from discord import Embed, utils
 from discord.ext.commands import Context, Cog, Bot, hybrid_command, guild_only, has_role, bot_has_permissions
 
+from cores.errors import ChannelError
 import cores.parameters as parameter
 from settings import CONFIG
 
@@ -33,6 +36,10 @@ class GiveAway(Cog, name="give away"):
 		*,
 		prize = parameter.prize,
 	):
+		access_channel = 1186268906361454614
+		if ctx.channel.id != access_channel:
+			raise ChannelError(f"You must use command at {ctx.guild.get_channel(access_channel).mention}")
+
 		embed = Embed(title=f"{ctx.author.display_name} 's Give Away", color = CONFIG['RED'], timestamp=time)
 		embed.add_field(name="Prize: ", value=prize, inline=False)
 		embed.add_field(name="Winner(s): ", value=winner, inline=False)
