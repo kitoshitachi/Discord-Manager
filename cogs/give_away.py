@@ -36,9 +36,9 @@ class GiveAway(Cog, name="give away"):
 		*,
 		prize = parameter.prize,
 	):
-		access_channel = 1186268906361454614
-		if ctx.channel.id != access_channel:
-			raise ChannelError(f"You must use command at {ctx.guild.get_channel(access_channel).mention}")
+		# access_channel = 1186268906361454614
+		# if ctx.channel.id != access_channel:
+		# 	raise ChannelError(f"You must use command at {ctx.guild.get_channel(access_channel).mention}")
 
 		embed = Embed(title=f"{ctx.author.display_name} 's Give Away", color = CONFIG['RED'], timestamp=time)
 		embed.add_field(name="Prize: ", value=prize, inline=False)

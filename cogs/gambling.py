@@ -75,7 +75,7 @@ class Gambling(commands.Cog, name="Gambling"):
 
         return wrapper
 
-    @commands.hybrid_command(name="coin flip",
+    @commands.hybrid_command(name="coin_flip",
                             description=CoinFlip.help(),
                             aliases=['cf']
     )
