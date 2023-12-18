@@ -1,6 +1,4 @@
 # standard library imports
-from asyncio import sleep
-import asyncio
 import functools
 from datetime import datetime
 from typing import Optional
@@ -16,7 +14,6 @@ from cores.card import Card
 from cores.database import Database
 import cores.parameters as parameter
 from cores.fantasy import Character
-from cores.gambling import Slot, CoinFlip
 from settings import CONFIG
 
 class Game(commands.Cog, name="game"):
@@ -85,7 +82,6 @@ class Game(commands.Cog, name="game"):
     @commands.hybrid_command(name="train",
                              description="Train to get exp, cash and random stat.\nYou can train 1000 times per day to get cash, stat and 3000 exp per day.",
                              aliases=['t'])
-    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def train(self, context: Context) -> None:
@@ -116,7 +112,6 @@ class Game(commands.Cog, name="game"):
     @commands.hybrid_command(name='profile',
                              description="Show character's stats",
                              aliases=['me', 'info'])
-    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def profile(self, context: Context, mode:str = parameter.display_mode) -> None:
@@ -142,12 +137,9 @@ class Game(commands.Cog, name="game"):
             await context.channel.send(file=File(fp=binary_image, filename="Profile.png"))
 
 
-        # await context.channel.send(embed=embed)
-
     @commands.hybrid_command(name='upgrade', 
                              description="Upgrade character's stats.\n", 
                              aliases=['up'])
-    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def upgrade(self, context: Context, 
@@ -175,7 +167,6 @@ class Game(commands.Cog, name="game"):
     @commands.hybrid_command(name="cash",
                             description="Show your cash",
                             aliases=['bal', 'balance', 'money'])
-    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def cash(self, context: Context) -> None:
@@ -194,7 +185,6 @@ class Game(commands.Cog, name="game"):
     @commands.hybrid_command(name="give",
                             description="Give cash to another user",
                             aliases=['transfer'])
-    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def give(
@@ -252,7 +242,6 @@ class Game(commands.Cog, name="game"):
                             description="Show limit train and xp",
                             # aliases=['']
     )
-    # @commands.group(name='RPG')
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
     async def limit(self, context:Context):
@@ -268,94 +257,22 @@ class Game(commands.Cog, name="game"):
         
         await context.channel.send(embed=embed)
 
-    @commands.hybrid_command(name="coinflip",
-                            description=CoinFlip.help(),
-                            aliases=['cf']
+    @commands.hybrid_command(name="reset",
+                            description="reset spirit of character",
+                            aliases=['rs']
     )
-    # @commands.group(name='Gambling')
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
-    async def coinflip(
-        self, 
-        context:Context, 
-        bet = parameter.bet, 
-        choice: Optional[str] = parameter.choice
-    ):
-        
+    async def reset(self, context:Context):
         user = context.author
-        user_id = user.id
-        channel = context.channel
+        data = self.supabase.select(user.id, 'character')
+        player: Character = Character.from_json(data['character'])
+        player.reset_spirit()
+        data['character'] = player.to_json()
+        self.supabase.update(user.id, data)
 
-        data = self.supabase.select(user_id, 'character')
-        character: Character = Character.from_json(data['character'])
-
-        current_cash = character.infor.cash
-       
-        if current_cash == 0:
-            raise BadArgument(f"{self.config['CASH_EMOJI']} | You have no money.")
-
-        if bet > current_cash:
-            bet = current_cash
-
-        content = f"`BET` {bet} {self.config['CASH_EMOJI']}\n`CHOICE` {choice}\n`RESULT` "
-
-        message = await channel.send(content + self.config['COIN_SPINS_EMOJI'])
-        result = CoinFlip.play()
-        if result == choice:
-            character.infor.add_cash(bet)
-            content += f"||{result}||\n{user.mention} ||win {bet:,}|| {self.config['CASH_EMOJI']}."
-        else:
-            character.infor.decrease_cash(bet)
-            content += f"||{result}||\n{user.mention} ||lose {bet:,}|| {self.config['CASH_EMOJI']}."
-
-
-        data['character'] = character.to_json()
-
-        self.supabase.update(user_id, data)
-
-        await asyncio.sleep(3)
-        await message.edit(
-            content = f"{content} Ur cash is ||{character.infor.cash:,}|| {self.config['CASH_EMOJI']}"
-        )
-
-    @commands.hybrid_command(name="slot",
-                            description=Slot.help(),
-                            aliases=['s']
-    )
-    # @commands.group(name='Gambling')
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    @ensure_user_exists
-    async def slot(self, context:Context, bet = parameter.bet):
-        
-        user = context.author
-        user_id = user.id
-
-        data = self.supabase.select(user_id, 'character')
-        character: Character = Character.from_json(data['character'])
-
-        current_cash = character.infor.cash
-
-        if bet > current_cash:
-            bet = current_cash
-
-        if bet == 0:
-            raise BadArgument(f"{self.config['CASH_EMOJI']} | You have no money.")
-
-        result = Slot.play()
-        message = f"You bet {bet:,}. Result is {'|'.join(result)}."
-        win = len(set(result)) == 1
-        
-        if win:
-            character.infor.add_cash(bet * Slot.items[result[0]])
-            await context.channel.send(content=message + f"\nYou win {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
-
-        else:
-            character.infor.decrease_cash(bet)
-            await context.channel.send(content=message + f"\nYou lose {bet:,}. {user.mention}, Ur cash is {character.infor.cash:,}")
-
-        data['character'] = character.to_json()
-
-        self.supabase.update(user_id, data)
+        await context.channel.send("Your spirit have been reset")
+    
     
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.

@@ -49,6 +49,14 @@ class Stat(Converter):
             \nHP : {self.HP:0>{max_len}} MP : {self.MP:0>{max_len}}\n\
             \nSTR: {self.STR:0>{max_len}} AGI: {self.AGI:0>{max_len}}\n\
             \nPR : {self.PR:0>{max_len}} CR : {self.CR:0>{max_len}}\n"
+    
+    def reset_stat(self):
+        self.HP = 0
+        self.MP = 0
+        self.STR = 0
+        self.AGI = 0
+        self.PR = 0
+        self.CR = 0
 
 
 @dataclass_json
@@ -176,6 +184,10 @@ class BaseCharacter:
                 \n═════════════════════════════════════════════"
 
 class Character(BaseCharacter):
+
+    def reset_spirit(self):
+        self.infor.reset_spirit()
+        self.bonus_stat.reset_stat()
 
     def upgrade(self, display_stat: str, spirit: int):
         '''
