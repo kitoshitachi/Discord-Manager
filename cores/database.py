@@ -53,3 +53,26 @@ class Database:
                 .delete() \
                 .eq('id', id) \
                 .execute()
+            
+    def select_all_ga(self) -> Union[dict, None]:
+        data, error = self.__supabase.from_('give_away') \
+            .select('*') \
+            .execute()
+        
+        if data[1] == []:
+            return None
+
+        return data[1]
+    
+    def insert_ga(self, data: Union[dict, list]):        
+        if isinstance(data, (dict, list)):
+            return self.__supabase.from_('give_away') \
+                .insert(data) \
+                .execute()
+
+    def delete_ga(self, id:int):
+        if id is not None:
+            self.__supabase.from_('give_away') \
+                .delete() \
+                .eq('ga_id', id) \
+                .execute()

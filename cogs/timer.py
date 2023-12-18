@@ -1,9 +1,12 @@
 import datetime
+import asyncio
+
 from random import choice
 from cores.database import Database
 from discord.ext import commands, tasks
 from discord import Client, CustomActivity, Status
 
+from cogs.give_away import GiveAway
 # If no tzinfo is given then UTC is assumed.
 class Timer(commands.Cog, name="timer"):
     """
@@ -12,8 +15,10 @@ class Timer(commands.Cog, name="timer"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.database = Database()
+        self.give_away = GiveAway(bot)
         self.status_task.start()
         self.reset_limit.start()
+        self.check_give_away.start()
         self.my_task = None
 
     def cog_unload(self):
@@ -42,6 +47,16 @@ class Timer(commands.Cog, name="timer"):
     @status_task.before_loop
     async def before_status_task(self) -> None:
         await self.bot.wait_until_ready()
+
+
+    @tasks.loop(count=1)
+    async def check_give_away(self) -> None:
+        records = self.database.select_all_ga()
+        asyncio.gather(*[self.give_away.end_give_away(data['ga_id'], data['channel_id']) for data in records])
+        
+        
+        
+
 
 async def setup(bot) -> None:
     await bot.add_cog(Timer(bot))
