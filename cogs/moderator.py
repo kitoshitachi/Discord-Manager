@@ -51,7 +51,7 @@ class Moderator(Cog, name="moderator"):
 		description="Change the nickname of a user on a server.",
 	)
 	@bot_has_permissions(manage_nicknames=True)
-	async def nick(self, ctx: Context, member:Member, *, nickname = parameter.nickname):
+	async def nick(self, ctx: Context, member = None, *, nickname = parameter.nickname):
 		"""
 		Change the nickname of a user on a server.
 		

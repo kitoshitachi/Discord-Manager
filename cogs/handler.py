@@ -14,14 +14,12 @@ from discord.ext.commands import (
 #Local Application/Library Specific
 from logger import Logger
 from settings import CONFIG
-from cores.database import Database
 
 class Handler(commands.Cog, name="handler"):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = CONFIG
 		self.logger = Logger
-		self.supabase = Database()
 
 	@Cog.listener()
 	async def on_command_error(self, context: Context, error) -> None:
@@ -39,9 +37,8 @@ class Handler(commands.Cog, name="handler"):
 			minutes, seconds = divmod(error.retry_after, 60)
 			hours, minutes = divmod(minutes, 60)
 			days, hours = divmod(hours, 24)
-			print(days, hours)
 			await context.channel.send(
-				content=f"**Please slow down** - You can use this command again in <t:{(datetime.now() - timedelta(days, hours, minutes, seconds)).timestamp()}:R>.",
+				content=f"**Please slow down** - You can use this command again in <t:{int((datetime.now() - timedelta(days, hours, minutes, seconds)).timestamp())}:R>.",
 				delete_after=10)
 			
 		elif isinstance(error, MissingPermissions):

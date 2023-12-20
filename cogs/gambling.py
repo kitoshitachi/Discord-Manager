@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 
 # Local application/library specific imports
-from cores.database import Database
+from database.database import MemberTable
 import cores.parameters as parameter
 from cores.fantasy import Character
 from cores.gambling import Slot, CoinFlip
@@ -28,7 +28,7 @@ class Gambling(commands.Cog, name="Gambling"):
         """
         self.bot = bot
         self.config = CONFIG
-        self.supabase = Database()
+        self.supabase = MemberTable()
 
     def ensure_user_exists(func):
         """
@@ -40,7 +40,7 @@ class Gambling(commands.Cog, name="Gambling"):
         @functools.wraps(func)
         async def wrapper(self, context: Context, *args, **kwargs):
             user = context.author
-            data = self.supabase.select(user.id, '*')
+            data = self.supabase.select_one(user.id, '*')
             if data is None:
                 message = await context.channel.send(
                     'Agree to activate the system?')
@@ -92,7 +92,7 @@ class Gambling(commands.Cog, name="Gambling"):
         user_id = user.id
         channel = context.channel
 
-        data = self.supabase.select(user_id, 'character')
+        data = self.supabase.select_one(user_id, 'character')
         character: Character = Character.from_json(data['character'])
 
         current_cash = character.infor.cash
@@ -135,7 +135,7 @@ class Gambling(commands.Cog, name="Gambling"):
         user = context.author
         user_id = user.id
 
-        data = self.supabase.select(user_id, 'character')
+        data = self.supabase.select_one(user_id, 'character')
         character: Character = Character.from_json(data['character'])
 
         current_cash = character.infor.cash

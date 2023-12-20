@@ -9,7 +9,7 @@ from discord import Embed
 from discord.ext.commands import Context, Cog, Bot, hybrid_command, guild_only, has_role, bot_has_permissions
 
 from cores.errors import ChannelError
-from cores.database import Database
+from database.database import GiveAwayTable
 import cores.parameters as parameter
 from settings import CONFIG
 
@@ -20,7 +20,7 @@ class GiveAway(Cog, name="give away"):
 	"""
 	def __init__(self, bot: Bot):
 		self.bot = bot
-		self.database = Database()
+		self.database = GiveAwayTable()
 	
 	
 	@hybrid_command(
@@ -39,9 +39,9 @@ class GiveAway(Cog, name="give away"):
 		prize = parameter.prize,
 	):
 		
-		# access_channel = 1186268906361454614
-		# if ctx.channel.id != access_channel:
-		# 	raise ChannelError(f"You must use command at {ctx.guild.get_channel(access_channel).mention}")
+		access_channel = 1186268906361454614
+		if ctx.channel.id != access_channel:
+			raise ChannelError(f"You must use command at {ctx.guild.get_channel(access_channel).mention}")
 		embed = Embed(title=f"{ctx.author.display_name} 's Give Away", color = CONFIG['RED'], timestamp=time)
 		embed.add_field(name="Prize: ", value=prize, inline=False)
 		embed.add_field(name="Winner(s): ", value=winner, inline=False)
@@ -55,7 +55,7 @@ class GiveAway(Cog, name="give away"):
 		invalid_emoji = '🎉'
 		await msg.add_reaction(invalid_emoji)
 
-		self.database.insert_ga({
+		self.database.insert({
 			'ga_id':msg.id,
 			'channel_id':ctx.channel.id
 		})
@@ -66,8 +66,12 @@ class GiveAway(Cog, name="give away"):
 		ga_id, 
 		channel_id,
 	):
-		channel = await self.bot.fetch_channel(channel_id)
-		msg = await channel.fetch_message(ga_id)
+		try:
+			channel = await self.bot.fetch_channel(channel_id)
+			msg = await channel.fetch_message(ga_id)
+		except Exception:
+			return
+		
 		embed = msg.embeds[0]
 		timestamps = int(embed.fields[2].value[3:-3])
 		end_date = datetime.fromtimestamp(timestamps)
@@ -79,14 +83,13 @@ class GiveAway(Cog, name="give away"):
 		except IndexError:
 			embed.set_field_at(1, name="Winner(s): ", value="Nobody Join?", inline=False)
 		except ValueError:
-			self.database.delete_ga(ga_id)
+			self.database.delete(ga_id)
 			return
-
 		else:
 			embed.set_field_at(1, name="Winner(s): ", value=', '.join(set(winners)), inline=False)
 		await msg.edit(embed=embed)
 
-		self.database.delete_ga(ga_id)
+		self.database.delete(ga_id)
 
 async def setup(bot: Bot):
 	await bot.add_cog(GiveAway(bot))

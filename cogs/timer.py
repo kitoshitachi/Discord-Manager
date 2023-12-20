@@ -1,10 +1,10 @@
-import datetime
 import asyncio
+import datetime
 
 from random import choice
-from cores.database import Database
+from database.database import MemberTable, GiveAwayTable
 from discord.ext import commands, tasks
-from discord import Client, CustomActivity, Status
+from discord import CustomActivity, Status
 
 from cogs.give_away import GiveAway
 # If no tzinfo is given then UTC is assumed.
@@ -14,7 +14,9 @@ class Timer(commands.Cog, name="timer"):
     """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.database = Database()
+        self.member_table = MemberTable()
+        self.give_away_table = GiveAwayTable()
+
         self.give_away = GiveAway(bot)
         self.status_task.start()
         self.reset_limit.start()
@@ -29,7 +31,9 @@ class Timer(commands.Cog, name="timer"):
 
     @tasks.loop(time=datetime.time(hour=5, minute=0))
     async def reset_limit(self):
-        self.database.reset_limit()
+        self.member_table.reset_limit()
+        print(self.member_table.reset_limit())
+        
 
     @tasks.loop(hours=8.0)
     async def status_task(self) -> None:
@@ -51,7 +55,8 @@ class Timer(commands.Cog, name="timer"):
 
     @tasks.loop(count=1)
     async def check_give_away(self) -> None:
-        records = self.database.select_all_ga()
+        records = self.give_away_table.select_()
+
         asyncio.gather(*[self.give_away.end_give_away(data['ga_id'], data['channel_id']) for data in records])
         
         

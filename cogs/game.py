@@ -11,7 +11,7 @@ from discord.ext.commands import Context, BadArgument
 
 # Local application/library specific imports
 from cores.card import Card
-from cores.database import Database
+from database.database import MemberTable
 import cores.parameters as parameter
 from cores.fantasy import Character
 from settings import CONFIG
@@ -29,7 +29,7 @@ class Game(commands.Cog, name="game"):
         """
         self.bot = bot
         self.config = CONFIG
-        self.supabase = Database()
+        self.supabase = MemberTable()
         self.card = Card()
         
 
@@ -43,7 +43,7 @@ class Game(commands.Cog, name="game"):
         @functools.wraps(func)
         async def wrapper(self, context: Context, *args, **kwargs):
             user = context.author
-            data = self.supabase.select(user.id, '*')
+            data = self.supabase.select_one(user.id, '*')
             if data is None:
                 message = await context.channel.send(
                     'Agree to activate the system?')
@@ -91,7 +91,7 @@ class Game(commands.Cog, name="game"):
         :return: None
         """
         user = context.author
-        data = self.supabase.select(user.id, '*')
+        data = self.supabase.select_one(user.id, '*')
 
         player: Character = Character.from_json(data['character'])
 
@@ -122,7 +122,7 @@ class Game(commands.Cog, name="game"):
         :return: None
         """
         user = context.author
-        data = self.supabase.select(user.id, 'character')
+        data = self.supabase.select_one(user.id, 'character')
 
         player: Character = Character.from_json(data['character'])
 
@@ -155,7 +155,7 @@ class Game(commands.Cog, name="game"):
         """
 
         user = context.author
-        data = self.supabase.select(user.id, 'character')
+        data = self.supabase.select_one(user.id, 'character')
 
         player: Character = Character.from_json(data['character'])
         msg = player.upgrade(stat, spirit)
@@ -177,7 +177,7 @@ class Game(commands.Cog, name="game"):
         :return: None
         """
         user = context.author
-        data = self.supabase.select(user.id, 'character')
+        data = self.supabase.select_one(user.id, 'character')
         player: Character = Character.from_json(data['character'])
         cash = player.infor.cash
         await context.channel.send(f"{self.config['CASH_EMOJI']} | You have {cash:,} cash.")
@@ -209,12 +209,12 @@ class Game(commands.Cog, name="game"):
         other_id = other.id
         author_id = context.author.id
 
-        other_player_data = self.supabase.select(other_id, 'character')
+        other_player_data = self.supabase.select_one(other_id, 'character')
         if other_player_data is None:
             # await context.channel.send("User not found.")
             raise BadArgument("User not found.")
         
-        author_data = self.supabase.select(author_id, 'character')
+        author_data = self.supabase.select_one(author_id, 'character')
 
         other_player: Character = Character.from_json(other_player_data['character'])
         author_player: Character = Character.from_json(author_data['character'])
@@ -247,7 +247,7 @@ class Game(commands.Cog, name="game"):
     async def limit(self, context:Context):
 
         user = context.author
-        data = self.supabase.select(user.id, 'status, limit_xp')
+        data = self.supabase.select_one(user.id, 'status, limit_xp')
         
         embed = Embed(title="<:game:1181633887978389524> Today's Limit")
         embed.add_field(name='Train', value=f'{data["status"]} times to increase stat', inline=False)
@@ -265,7 +265,7 @@ class Game(commands.Cog, name="game"):
     @ensure_user_exists
     async def reset(self, context:Context):
         user = context.author
-        data = self.supabase.select(user.id, 'character')
+        data = self.supabase.select_one(user.id, 'character')
         player: Character = Character.from_json(data['character'])
         player.reset_spirit()
         data['character'] = player.to_json()
