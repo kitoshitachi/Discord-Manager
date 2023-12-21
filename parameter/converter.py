@@ -4,45 +4,11 @@ import re
 from discord.ext.commands import ( 
     Context, Converter, BadArgument
 )
-
-class StatDisplayMode(Converter):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self._mode = ['display_stat', 'base_stat', 'bonus_stat', 'total_stat']
-
-    async def convert(self, ctx: Context, argument: str) -> str:
-        '''
-        Converts to a stat display mode.
-
-        Parameters
-        -----------
-        ctx: :class:`Context`
-            The invocation context that triggered this converter.
-        argument: :class:`str`
-            The argument that is being converted.
-
-        Raises
-        -------
-        :exc:`BadArgument`
-            If the argument could not be converted into a stat display mode.
-
-        Returns
-        --------
-        :class:`str`
-            The stat display mode that was requested.
-
-        '''
-        id = int(argument)
-        if id in range(4):
-            return self._mode[id]
-        else:
-            raise BadArgument(f"{argument} is not a valid display mode. Options are: {', '.join(self._mode)}")
-        
     
 class PositiveInteger(Converter):
     '''
     Converts to a positive integer.
+    if all is not given then 'all' is returned
     '''
     def __init__(self, all = None) -> None:
         super().__init__()
@@ -82,7 +48,7 @@ class KeyAlias(Converter):
     '''
     convert the flag to full content name
     Data schema  = (tuple of 1st key alias, tuple of 2nd key alias,...)
-
+    default is 1st key
     return first item of tuple as full content    
     '''
 
@@ -90,6 +56,7 @@ class KeyAlias(Converter):
         super().__init__()
         self.name = name
         self.list_of_keys = data
+        self.default = data[0][0]
 
     @property
     def list_option(self):

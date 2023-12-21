@@ -1,16 +1,20 @@
 
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 from random import choices
 
 
 from discord import Embed
-from discord.ext.commands import Context, Cog, Bot, hybrid_command, guild_only, has_role, bot_has_permissions
+from discord.ext.commands import (
+	Context, Cog, Bot, 
+	hybrid_command, 
+	guild_only, has_role, bot_has_permissions
+)
 
-from cores.errors import ChannelError
-from database.database import GiveAwayTable
-import cores.parameters as parameter
+from error import ChannelError
+from database import GiveAwayTable
+import parameter
 from settings import CONFIG
 
 class GiveAway(Cog, name="give away"):

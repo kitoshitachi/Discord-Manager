@@ -3,7 +3,7 @@ import discord
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Command
-from cores.view import PaginationView
+from .view import PaginationView
 
 from settings import CONFIG
 

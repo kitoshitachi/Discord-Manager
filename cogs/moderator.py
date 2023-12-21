@@ -1,6 +1,7 @@
 #standard library imports
 
 # Third-party imports
+from typing import Optional
 from discord import Member, utils
 from discord.ext import commands
 from discord.ext.commands import (
@@ -9,8 +10,8 @@ from discord.ext.commands import (
 )
 
 # Local application/library specific imports
-import cores.parameters as parameter
-from cores.utils import clean_name, deEmojify
+import parameter
+from core import clean_name, deEmojify
 from settings import CONFIG
 
 class Moderator(Cog, name="moderator"):
@@ -51,7 +52,7 @@ class Moderator(Cog, name="moderator"):
 		description="Change the nickname of a user on a server.",
 	)
 	@bot_has_permissions(manage_nicknames=True)
-	async def nick(self, ctx: Context, member = None, *, nickname = parameter.nickname):
+	async def nick(self, ctx: Context, member: Optional[Member], *, nickname:Optional[str] = parameter.nickname):
 		"""
 		Change the nickname of a user on a server.
 		
@@ -67,7 +68,7 @@ class Moderator(Cog, name="moderator"):
 				member = ctx.message.mentions.pop(0)
 		except IndexError:
 			member = ctx.author
-		
+
 		if nickname == None:
 			nickname = member.global_name or clean_name(member.name)
 		
@@ -79,6 +80,7 @@ class Moderator(Cog, name="moderator"):
 		nickname = nickname.strip().capitalize()
 
 		await member.edit(nick=nickname)
+	
 
 	@Cog.listener()
 	async def on_member_update(self, before: Member, after: Member) -> None:

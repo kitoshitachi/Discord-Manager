@@ -1,5 +1,4 @@
 from .querries import BaseTable
-from settings import CONFIG
 
 class MemberTable(BaseTable):
     def __init__(self) -> None:

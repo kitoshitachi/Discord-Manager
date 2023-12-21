@@ -10,10 +10,9 @@ from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 
 # Local application/library specific imports
-from cores.card import Card
-from database.database import MemberTable
-import cores.parameters as parameter
-from cores.fantasy import Character
+from core import Card, Character
+from database import MemberTable
+import parameter
 from settings import CONFIG
 
 class Game(commands.Cog, name="game"):
@@ -109,12 +108,18 @@ class Game(commands.Cog, name="game"):
 
     #================== profile =========================
 
-    @commands.hybrid_command(name='profile',
-                             description="Show character's stats",
-                             aliases=['me', 'info'])
+    @commands.hybrid_command(
+        name='profile',
+        description="Show character's stats",
+        aliases=['me', 'info']
+    )
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
-    async def profile(self, context: Context, mode:str = parameter.display_mode) -> None:
+    async def profile(
+        self, 
+        context: Context, 
+        mode:str = parameter.display_mode
+    ) -> None:
         """
         The stat command. It allows the user to see their character's stats.
 
@@ -137,14 +142,18 @@ class Game(commands.Cog, name="game"):
             await context.channel.send(file=File(fp=binary_image, filename="Profile.png"))
 
 
-    @commands.hybrid_command(name='upgrade', 
-                             description="Upgrade character's stats.\n", 
-                             aliases=['up'])
+    @commands.hybrid_command(
+        name='upgrade', 
+        description="Upgrade character's stats.\n", 
+        aliases=['up']
+    )
     @commands.cooldown(1, 15, commands.BucketType.user)
     @ensure_user_exists
-    async def upgrade(self, context: Context, 
-                      stat:Optional[str] = parameter.stat, 
-                      spirit:Optional[int] = parameter.spirit) -> None:
+    async def upgrade(
+        self, context: Context, 
+        stat:Optional[str] = parameter.stat, 
+        spirit:Optional[int] = parameter.spirit
+    ) -> None:
         """
         The upgrade command. It allows the user to upgrade their character's stats.
 
@@ -190,7 +199,7 @@ class Game(commands.Cog, name="game"):
     async def give(
         self, context: Context, 
         other:Member, 
-        cash: Optional[str] = parameter.cash
+        cash = parameter.cash
     ) -> None:
         """
         The give command. It allows the user to give cash to another user.

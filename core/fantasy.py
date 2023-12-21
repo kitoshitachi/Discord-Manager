@@ -9,7 +9,7 @@ from dataclasses_json import dataclass_json
 from discord.ext.commands import Converter, Context, BadArgument
 
 # Local application/library specific imports
-from cores.utils import random_stat
+from .utils import random_stat
 from settings import CONFIG
 
 

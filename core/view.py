@@ -1,7 +1,7 @@
 
 
 # Standard Library
-from typing import List, Optional
+from typing import List
 
 # Third Party Library
 import discord

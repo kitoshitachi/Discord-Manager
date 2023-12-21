@@ -5,7 +5,7 @@ from pilmoji import Pilmoji
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
 
-from cores.fantasy import Character, Stat
+from .fantasy import Character, Stat
 
 FILE_DIR  = os.path.dirname(os.path.abspath(__file__))
 

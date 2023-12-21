@@ -2,17 +2,15 @@
 import asyncio
 from datetime import datetime
 import functools
-from typing import Optional
 
 # Third-party imports
 from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 
 # Local application/library specific imports
-from database.database import MemberTable
-import cores.parameters as parameter
-from cores.fantasy import Character
-from cores.gambling import Slot, CoinFlip
+import parameter
+from database import MemberTable
+from core import Character, Slot, CoinFlip
 from settings import CONFIG
 
 class Gambling(commands.Cog, name="Gambling"):
@@ -85,7 +83,7 @@ class Gambling(commands.Cog, name="Gambling"):
         self, 
         context:Context, 
         bet = parameter.bet, 
-        choice: Optional[str] = parameter.choice
+        choice = parameter.choice
     ):
         
         user = context.author

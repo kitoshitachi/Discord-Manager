@@ -2,47 +2,58 @@
 Define param
 """
 from datetime import datetime
+from operator import attrgetter
+from typing import Optional
 
 from discord.ext.commands import parameter
 
-from cores.fantasy import Stat
-from cores.converter import StatDisplayMode, PositiveInteger, KeyAlias, TimeConverter
+from core import Stat
+from .converter import PositiveInteger, KeyAlias, TimeConverter
 from settings import CONFIG
 
+
 stat = parameter(
-    converter=Stat, 
+    converter=Stat,
+    displayed_default='<stat>', 
     description="The stat to upgrade.\nOptions are: HP, MP, STR, AGI, PR, CR."
 )
 
 display_mode = parameter(
-    default="display_stat",
-    converter=StatDisplayMode,
+    default=attrgetter('default'),
+    converter=KeyAlias(
+        name='display profile mode',
+        data=(
+            ('display_stat', 'default', 'full', '0'),
+            ('base_stat', 'base', '1'),
+            ('bonus_stat', 'bonus', '2'),
+            ('total_stat', 'total', '3')
+        )
+    ),
     description="The stat display mode to use.\
-    \nDefault is 0, which is `display_stat`.\
     \nOptions are:\
-    \n0: `display stat`\
-    \n1: `base stat`\
-    \n2: `bonus stat`\
-    \n3: `total stat`"
+    \naliases `display stat`: 'default', 'full', '0'\
+    \naliases `base stat`: 'base', '1'\
+    \naliases `bonus stat`: 'bonus', '2'\
+    \naliases `total stat`: 'total', '3'"
 )
 
 
-spirit = parameter(
+spirit: Optional[int]  = parameter(
     converter=PositiveInteger,
     description="The amount of spirit to upgrade."
 )
 
-cash = parameter(
+cash: Optional[int]  = parameter(
     converter=PositiveInteger,
     description="The amount of cash to give"
 )
 
-limit = parameter(
+limit: Optional[int] = parameter(
     converter=PositiveInteger(all=100),
     description="The amount of messages. Max is 100 per command"
 )
 
-bet = parameter(
+bet: Optional[int] = parameter(
     default=1,
     converter=PositiveInteger(all=250000),
     description='The amount of cash to bet. \
@@ -56,21 +67,24 @@ winner:int = parameter(
     \nMax is 10\nMin is 1"
 )
 
-nickname:str = parameter(
-    default=None,
+nickname:Optional[str] = parameter(
     description="The new nickname. If you dont write the name, then set ur name to guild name or clean username"
 )
 
-choice = parameter(
-    default=CONFIG['HEAD_COIN_EMOJI'],
+choice: Optional[str] = parameter(
+    default=attrgetter('default'),
     converter=KeyAlias
     (
         name='choice',
-        data=((CONFIG['HEAD_COIN_EMOJI'],'head','h'), (CONFIG['TAIL_COIN_EMOJI'],'tail','t'))),
+        data=(
+            (CONFIG['HEAD_COIN_EMOJI'],'head','h'), 
+            (CONFIG['TAIL_COIN_EMOJI'],'tail','t')
+        )
+    ),
     description="choose face of coin"
 )
 
-time:datetime = parameter(
+time: datetime = parameter(
     converter=TimeConverter,
     description="Set time end give away. \
         \nMax is 1 day \

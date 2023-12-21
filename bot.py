@@ -9,7 +9,7 @@ from discord.ext import commands
 # LOCAL MODULES
 from logger import Logger
 from settings import CONFIG, PREFIX_BOT
-from cores.helpcommand import CustomHelpCommand
+from core import CustomHelpCommand
 
 intents = Intents.default()
 intents.members = True
@@ -24,6 +24,8 @@ class DiscordBot(commands.Bot):
 				command_prefix=PREFIX_BOT,
 				intents=intents,
 				help_command=CustomHelpCommand(),
+				case_insensitive=True,
+				strip_after_prefix = True
 		)
 		self.logger = Logger
 		self.config = CONFIG
@@ -78,5 +80,4 @@ class DiscordBot(commands.Bot):
 		full_command = " ".join([command.lower(), *argument])
 
 		message.content = full_command
-		print(full_command)
 		await self.process_commands(message)
