@@ -70,15 +70,14 @@ class DiscordBot(commands.Bot):
 		if message.author == self.user or message.author.bot:
 			return
 		
-		full_command = message.content.strip().lower()
+		full_command = message.content.strip()
 
 		bad_prefix = PREFIX_BOT + ' '
-		if full_command.startswith(bad_prefix):
+		if full_command.lower().startswith(bad_prefix):
 			full_command = PREFIX_BOT + message.content[len(bad_prefix):]
 
 		command, *argument = full_command.split(' ')
 		full_command = " ".join([command.lower(), *argument])
 
 		message.content = full_command
-		print(full_command)
 		await self.process_commands(message)

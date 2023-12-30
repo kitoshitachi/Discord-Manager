@@ -2,7 +2,6 @@
 Define param
 """
 from datetime import datetime
-from operator import attrgetter
 from typing import Optional
 
 from discord.ext.commands import parameter

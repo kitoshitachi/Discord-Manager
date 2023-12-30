@@ -77,7 +77,7 @@ class Moderator(Cog, name="moderator"):
 		if member.top_role.position > special_role.position:
 			nickname += ' ' + member.top_role.name.split(' ')[-1]
 
-		nickname = nickname.strip().capitalize()
+		nickname = nickname
 
 		await member.edit(nick=nickname)
 	
