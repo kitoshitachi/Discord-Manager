@@ -19,7 +19,7 @@ stat = parameter(
 )
 
 display_mode = parameter(
-    default=attrgetter('default'),
+    default='display_stat',
     converter=KeyAlias(
         name='display profile mode',
         data=(
@@ -72,7 +72,7 @@ nickname:Optional[str] = parameter(
 )
 
 choice: Optional[str] = parameter(
-    default=attrgetter('default'),
+    default=CONFIG['HEAD_COIN_EMOJI'],
     converter=KeyAlias
     (
         name='choice',

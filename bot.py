@@ -80,4 +80,5 @@ class DiscordBot(commands.Bot):
 		full_command = " ".join([command.lower(), *argument])
 
 		message.content = full_command
+		print(full_command)
 		await self.process_commands(message)
